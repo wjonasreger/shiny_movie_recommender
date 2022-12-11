@@ -18,26 +18,19 @@ url_dl = "?raw=true"
 # data_url = "../data/"
 # url_dl = ""
 movies = readLines(paste0(data_url, 'movies.dat', url_dl))
-movies = strsplit(movies, 
-                          split = "::", fixed = TRUE, useBytes = TRUE)
-movies = matrix(unlist(movies), ncol = 24, byrow = TRUE)
+movies = strsplit(movies, split = "::", fixed = TRUE, useBytes = TRUE)
+movies = matrix(unlist(movies), ncol = 7, byrow = TRUE)
 movies = data.frame(movies, stringsAsFactors = FALSE)
 
 colnames(movies) = movies[1, ]
 movies = movies[-1, ]
 
-num_col = c("movie_id", "num_ratings", "rank", "unweighted_mean_rating", 
-            "Animation", "Children's", "Comedy", "Adventure", "Fantasy", 
-            "Romance", "Drama", "Action", "Crime", "Thriller", "Horror", 
-            "Sci-Fi", "Documentary", "War", "Musical", "Mystery", "Film-Noir",
-            "Western")
+num_col = c("movie_id", "num_ratings", "rank", "unweighted_mean_rating")
 movies[, num_col] = sapply(movies[, num_col], as.numeric)
-# movies[rowSums(is.na(movies)) > 0, ]
 
-# genre categories for system I
-cats = c("All", "Animation", "Children's", "Comedy", "Adventure", "Fantasy", 
-         "Romance", "Drama", "Action", "Crime", "Thriller", "Horror", "Sci-Fi",
-         "Documentary", "War", "Musical", "Mystery", "Film-Noir", "Western")
+movie_genres = delCat(movies$genres, sep='\\|')
+cats = c("All", sort(colnames(movie_genres)))
+movies = cbind(movies, movie_genres)
 
 movies = movies %>%
   arrange(desc(rank))

@@ -133,6 +133,26 @@ preprocessRatings = function(user_input, rec_mod) {
   return(rating_matrix)
 }
 
+# takes a vector with delimited categorical labels and creates a one-hot matrix
+delCat = function(x, sep) {
+  cat_matrix = c()
+  cats = c()
+  for (i in 1:length(x)) {
+    cat_info = strsplit(x[i], sep)[[1]]
+    for (j in 1:length(cat_info)) {
+      if (cat_info[j] %in% cats) {
+        cat_matrix[i, which(cat_info[j] == cats)] = 1L
+      } else {
+        cats = c(cats, cat_info[j])
+        cat_matrix = cbind(cat_matrix, rep(0L, length(x)))
+        colnames(cat_matrix) = cats
+        cat_matrix[i, which(cat_info[j] == cats)] = 1L
+      }
+    }
+  }
+  return(cat_matrix)
+}
+
 ################################################################################
 ################################################################################
 

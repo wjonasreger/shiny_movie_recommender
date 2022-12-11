@@ -57,19 +57,14 @@ system2 = tabPanel(
     useShinyjs(),
     box(
       width = 12, status = "info", title = "Personalized recommendations based on your ratings",
-      radioButtons(
-        inputId = "selectModel", label = "Choose what kind of recommendations you want to see",
-        choices = c(
-          "Show me movies liked by people like me" = "UBCF",
-          "Show me movies similar to what I liked" = "IBCF"
-        )
-      ),
-      br(),
       withBusyIndicatorUI(
         actionButton("btn", "View your recommendations", class = "btn-warning")
       ),
       br(),
-      tableOutput("user_recommendations"),
+      h4("Discover movies based on what people similar to you have rated"),
+      tableOutput("user_recommendations_ubcf"),
+      h4("Discover movies similar to what you rated"),
+      tableOutput("user_recommendations_ibcf"),
       p(
         class = "text-muted",
         paste("Developed by Jonas Reger and Hope Hunter. The source code is available at https://github.com/wjonasreger/shiny_movie_recommender.")

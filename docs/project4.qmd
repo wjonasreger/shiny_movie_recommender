@@ -1,6 +1,6 @@
 ---
 title: "Project 4: Movie Recommender"
-author: "W. Jonas Reger (wreger2), Hope Hunter (hhunter3)"
+author: "Hope Hunter (hhunter3), W. Jonas Reger (wreger2)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 page-layout: full
@@ -23,7 +23,7 @@ format:
 
 ## Load Data
 
-The [dataset](https://liangfgithub.github.io/MovieData/) contains about 1 million anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000. General information about the data is introduced in this document, but for more in-depth documentation on the data refer to `raw/README.txt`.
+The [dataset](https://liangfgithub.github.io/MovieData/) contains about 1 million anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000. General information about the data is introduced in this document, but for more in-depth documentation on the data refer to `raw/README.txt` or [here](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/raw) on GitHub.
 
 ```{r load packages, message=FALSE, warning=FALSE}
 library(stringr)
@@ -32,6 +32,8 @@ library(tidyverse)
 library(lubridate)
 library(ggplot2)
 library(gridExtra)
+library(data.table)
+library(DT)
 library(recommenderlab)
 ```
 
@@ -92,7 +94,7 @@ colnames(users) = c('user_id', 'gender', 'age', 'occupation', 'zipcode')
 head(users)
 ```
 
-## Exploratory Data Analysis
+## Data Preprocessing and Analysis
 
 Now some new features are added to the `movies` data.
 
@@ -153,6 +155,8 @@ colnames(ratings)
 colnames(movies)
 colnames(users)
 ```
+
+Here are some summary statistics of a few features of interest for the recommender system. Note that most of these features are not distributed evenly, which is an important characteristic to consider while designing the recommender.
 
 ```{r, results='hold'}
 #| code-fold: true
@@ -286,9 +290,13 @@ grid.arrange(
 )
 ```
 
-## Building System I
+## Building Recommender System I
 
-The goal of System I recommender is to return the top movies of each genre using some criteria to decide what movies are most popular or trendy. After some exploratory analysis, the data appeared to have some lopsided proportions in some features. In particular, there was about a 30%-70% split of Females-Males in the `users` data set. While it may be counter-intuitive to avoid recommending what is popular by overall proportion or counts, it seemed that a correction method could be applied to equalize representation for all users as a first step towards constructing a rank vector. This is accomplished by assigning weights to each user such that under-represented users are assigned a higher weight, and over-represented users are assigned a lower weight. The formulas used to accomplish this standardization of user weights is shown below.
+The goal of Recommender System I is to return the top movies of each genre using some criteria to decide what movies are most popular or trendy. After some exploratory analysis, the data appeared to have some lopsided proportions in some features. In particular, there was about a 30%-70% split of Females-Males in the `users` data set. While it may be counter-intuitive to avoid recommending what is popular by overall proportion or counts, it seemed that a correction method could be applied to equalize representation for all users as a first method towards constructing a rank vector.
+
+### Method I: Weighted Representations of Users
+
+This correction is accomplished by assigning weights to each user such that under-represented users are assigned a higher weight, and over-represented users are assigned a lower weight. The formulas used to accomplish this standardization of user weights is shown below.
 
 The weights for categorical features of length $\mathbf{n}$ are simply the mean misclassification rates between a given value $x_i$ and all values in a feature vector $\mathbf{x_{n \times 1}}$. This is applied to `gender`, `age`, and `occupation` features from the `users` data.
 
@@ -309,7 +317,7 @@ users$age_weight = sapply(users$age, normalize_cat, data=users$age)
 users$occupation_weight = sapply(users$occupation, normalize_cat, data=users$occupation)
 ```
 
-Another feature where representation is disproportionate is the number of ratings a user makes. To standardize this kind of influence, the weights for the number of ratings per user are computed as follows. Note that the **number of ratings per user** vector, $\mathbf{r_{n \times 1}}$ (i.e., `num_ratings`), is a count feature, so its support is $[0, n]$.
+Another feature where representation is disproportionate is the number of ratings a user makes. To standardize this kind of influence, the weights for the number of ratings per user are computed as follows. Note that the **number of ratings per user** vector, $\mathbf{r_{n \times 1}}$ (i.e., `num_ratings_user`), is a count feature, so its support is $[0, n]$.
 
 $$
 w_i = 1 - \frac{r_i}{max(\mathbf{r})}, \qquad r_i \in \mathbf{r_{n \times 1}}, \qquad w_i \in [0, 1]
@@ -322,14 +330,14 @@ users$user_id = as.numeric(users$user_id)
 # create user features from ratings data
 user_rating_weights = ratings %>%
   group_by(user_id) %>%
-  summarise(num_ratings = n()) %>%
-  mutate(rating_weight = 1 - num_ratings / max(num_ratings)) %>%
+  summarise(num_ratings_user = n()) %>%
+  mutate(rating_weight = 1 - num_ratings_user / max(num_ratings_user)) %>%
   select(c(user_id, rating_weight))
 ```
 
 Finally, each user will receive a single weight value that is computed from the weight vectors for each feature that is standardized, $\mathbf{W_{n \times p}}$. There are two methods considered; the first is a simple unweighted mean of all feature weights (i.e., `user_mean`), and the second is an L2 norm of feature weights that is scaled by the maximum L2 norm weight of users (i.e., `user_norm`). Note that the final weight vector, $\mathbf{\bar{w}_{n \times 1}}$, should have the support $[0, 1]$.
 
-Here is the Mean User Weight (MW) formula (i.e., `user_mean`). Let the number of feature weights be \$p\$, and the feature weights vector for user $i$ be $\mathbf{W}_{i\cdot}$.
+Here is the Mean User Weight (MW) formula (i.e., `user_mean`). Let the number of feature weights be $p$, and the feature weights vector for user $i$ be $\mathbf{W}_{i\cdot}$.
 
 $$
 MW_i = \frac1p\sum_{j=1}^p w_{ij}, \qquad w_{ij} \in \mathbf{W}_{i \cdot}
@@ -356,7 +364,9 @@ Here is the distribution of users standardized weights.
 #| code-fold: true
 users %>%
   ggplot(aes(x = user_norm)) +
-  geom_histogram(fill="#74BDCB", color="#E7F2F8")
+  geom_histogram(fill="#74BDCB", color="#E7F2F8") +
+  ggtitle("Standardized User Weights") +
+  xlab("Standardized User Weights (user_norm)")
 ```
 
 Now a weighted mean rating, $\bar{r}_k$ (i.e., `weighted_mean_rating`), is computed for a movie $k$ from its $m$ ratings. Note that this can be interchangeable with the MW weights as well.
@@ -378,11 +388,13 @@ weighted_ratings = ratings %>%
 
 Here is the distribution of users weighted mean ratings.
 
-```{r}
+```{r, message=FALSE}
 #| code-fold: true
 weighted_ratings %>%
   ggplot(aes(x = weighted_mean_rating)) +
-  geom_histogram(fill="#74BDCB", color="#E7F2F8")
+  geom_histogram(fill="#74BDCB", color="#E7F2F8") +
+  ggtitle("Weighted Mean User Ratings") +
+  xlab("Weighted Mean User Ratings (weighted_mean_rating)")
 ```
 
 This shows the dispersion of user weights between the weighted and unweighted means. While there is not much dispersion, there may be subtle changes in the overall results of computing movie ranks for this system.
@@ -393,10 +405,69 @@ weighted_ratings %>%
   select(c(weighted_mean_rating, unweighted_mean_rating)) %>%
   ggplot(aes(x=weighted_mean_rating, y=unweighted_mean_rating)) +
   geom_point(shape=19, alpha=0.5, color="#74BDCB") +
-  geom_smooth(color="#FFA384")
+  geom_smooth(color="#FFA384") +
+  ggtitle("Weighted vs. Unweighted Mean User Ratings") +
+  xlab("Weighted Mean User Rating") +
+  ylab("Unweighted Mean User Rating")
 ```
 
-This new vector, $\bar{r}$, now represents the user contributions to movie ratings more equally such that users of any marginalized groups in the data have more weighted influence in overall ratings to offset for their lower counts. The next step in constructing a rank vector is an additional objective to prefer recommending more recent movies over older movies (i.e., downward sloping rank trends as year of release increases are visible in the scatterplots shown below in this section). Older movies may still be very popular amongst users, but it is a practical interest to try lifting more recent movies in the rank vector (i.e., or pushing older movies down) such that users are recommended movies that are not only popular but also new. One motivation for adding this feature to the rank system is that the inertia of popularity in older movies may be difficult for newer movies to overwhelm quickly while they are still new. So, a penalty term is applied to give newer movies some chance to appear in top ranks over older movies that have a lot of popularity inertia. This essentially gives newer movies the chance to be in the "spotlight" and garner popularity by attracting users and their ratings. The penalty term was chosen specifically to lessen the rank loss when comparing older movies, so it only separates very recent movies from less recent movies in a greater loss. For instance, two movies made in 1900 and 1980 experiences a smaller difference in rank loss compared to movies made in 1995 and 2000. Ideally, this penalty term could be tuned to minimize error towards predicting the true rank vector. However, since the true rank vector is not observed, a simple penalty term criterion is used as shown below.
+This new vector, $\bar{r}$, now represents the user contributions to movie ratings more equally such that users of any marginalized groups in the data have more weighted influence in overall ratings to offset for their lower counts. Here is a demonstration of selecting the top movies in the Animation genre using Method I.
+
+```{r}
+#| code-fold: true
+system1_movies = movies %>%
+  left_join(weighted_ratings, by='movie_id') %>%
+  arrange(desc(weighted_mean_rating)) %>%
+  left_join(ratings %>% 
+              group_by(movie_id) %>% 
+              summarise(num_ratings = n()) %>%
+              select(c("movie_id", "num_ratings")), 
+            by="movie_id") %>%
+  mutate(weighted_mean_rating = replace_na(weighted_mean_rating, 0), 
+         unweighted_mean_rating = replace_na(unweighted_mean_rating, 0),
+         num_ratings = replace_na(num_ratings, 0)) %>%
+  select(c("movie_id", "title", "image_url", "num_ratings", "weighted_mean_rating",
+           "unweighted_mean_rating", "genres"))
+
+# save movie subset data for system I in the shiny app
+write.table(system1_movies, "../data/movies.dat", sep = "::", row.names = FALSE, quote = FALSE)
+
+# load data
+data_url = "../data/"
+url_dl = ""
+system1_movies = readLines(paste0(data_url, 'movies.dat', url_dl))
+system1_movies = strsplit(system1_movies, 
+                          split = "::", fixed = TRUE, useBytes = TRUE)
+system1_movies = matrix(unlist(system1_movies), ncol = 7, byrow = TRUE)
+system1_movies = data.frame(system1_movies, stringsAsFactors = FALSE)
+
+colnames(system1_movies) = system1_movies[1, ]
+system1_movies = system1_movies[-1, ]
+
+num_col = c("movie_id", "num_ratings", "weighted_mean_rating",
+            "unweighted_mean_rating")
+system1_movies[, num_col] = sapply(system1_movies[, num_col], as.numeric)
+
+system1_movie_genres = delCat(system1_movies$genres, sep='\\|')
+cats = c("All", sort(colnames(system1_movie_genres)))
+system1_movies = cbind(system1_movies, system1_movie_genres)
+
+# example with top comedy recommendations
+system1_movies %>%
+  filter(Animation == 1) %>%
+  mutate(image = paste0("<img src=", image_url, "></img>"),
+         rating = round(weighted_mean_rating, 1)) %>%
+  select(c("image", "title", "rating")) %>%
+  head(5) %>%
+  datatable(class = "nowrap hover row-border", escape = FALSE,
+            options = list(dom = 't', scrollX = TRUE, autoWidth = FALSE))
+```
+
+### Method II: Penalties for Movies
+
+The second method in constructing a rank vector is the same as the first method, but extended with an additional objective to prefer recommending movies that are recent. There is a potential issue discovered in the previous exploratory analysis section with regards to movies. Newer movies generally have a harder time rising to higher ranks since they are treated equally as older movies. While this is not inherently bad, it can make it more challenging for more newer movies to be discovered quickly by users. A solution to this is to add a penalty term to movies that are older. Hopefully, this helps balance the goals of recommending things that are popular but also new.
+
+Older movies may still be very popular amongst users, but it is a practical interest to try lifting more recent movies in the rank vector (i.e., or pushing older movies down) such that users are recommended movies that are not only popular but also new. One motivation for adding this feature to the rank system is that the inertia of popularity in older movies may be difficult for newer movies to overwhelm quickly while they are still new. So, a penalty term is applied to give newer movies some chance to appear in top ranks over older movies that have a lot of popularity inertia. This essentially gives newer movies the chance to be in the "spotlight" and garner popularity by attracting users and their ratings. The penalty term was chosen specifically to lessen the rank loss when comparing older movies, so it only separates very recent movies from less recent movies in a greater loss. For instance, two movies made in 1900 and 1980 experiences a smaller difference in rank loss compared to movies made in 1995 and 2000. Ideally, this penalty term could be tuned to minimize error towards predicting the true rank vector. However, since the true rank vector is not observed, a simple penalty term criterion is used as shown below.
 
 $$
 \mathbf{\lambda}_k = \log (\max(\mathbf{year}) -\mathbf{year}_k + 1)
@@ -424,11 +495,13 @@ movie_ranks = movies %>%
 
 Here is the distribution of the movie ranks.
 
-```{r}
+```{r, warning=FALSE}
 #| code-fold: true
 movie_ranks %>%
   ggplot(aes(x = rank)) +
-  geom_histogram(binwidth = 5, fill="#74BDCB", color="#E7F2F8")
+  geom_histogram(binwidth = 5, fill="#74BDCB", color="#E7F2F8") +
+  ggtitle("Movie rank scores") +
+  xlab("Rank score (0-100)")
 ```
 
 Here is the Generative Additive Model regression line plotted over the weighted mean ratings for each movie prior to adding the penalty term.
@@ -440,7 +513,10 @@ movie_ranks %>%
   select(c(year, rank, weighted_mean_rating)) %>%
   ggplot(aes(x=year, y=weighted_mean_rating)) +
   geom_point(shape=19, alpha=0.5, color="#74BDCB") +
-  geom_smooth(aes(x=year, y=weighted_mean_rating, method="gam"), color="red")
+  geom_smooth(aes(x=year, y=weighted_mean_rating, method="gam"), color="red") +
+  ggtitle("Weighted mean ratings of movies over years") +
+  xlab("Year of release") +
+  ylab("Weighted mean user ratings")
 ```
 
 Here is the plot for weighted mean ratings of movies after applying the penalty term. This is the final rank vector for System I recommendations. It is visible in comparing these plots and the many plots later in this section, that the penalty seems to support newer movies for a brief time of about 5 years to overwhelm the inertia of popularity for older movies.
@@ -462,9 +538,9 @@ movie_ranks %>%
                      values=c("Rank"="red", "Rank + Penalty"="#FFA384"))
 ```
 
-Now a rank vector has been created and can be used in next steps for System I. When a genre is selected, the top $R$ ranked movies of the genre subset are selected for recommendation. However, one potential issue that was not addressed in creating the rank vector are movies with few ratings. While the representation of user contributions to movie ratings have been equalized, it does not resolve potential bias issues. For instance, user contributions to two movies with 5 ratings and 5000 ratings may be better balanced. However, there is less certainty that the movie with 5 ratings will have an accurate rank. Thus, the movies with less than $M_q$ ratings (i.e., $M_q = \mathbf{quantile}(\mathbf{m},\ \mathbf{probs}=q)$, where $\mathbf{m}$ is the number of ratings vector, `num_ratings`) will be filtered out prior to selecting the top $R$ recommendations for System I.
+Now a rank vector has been created and can be used in next steps for System I. When a genre is selected, the top $R$ ranked movies of the genre subset are selected for recommendation. However, one potential issue that was not addressed in creating the rank vector are movies with few ratings. While the representation of user contributions to movie ratings have been equalized and penalized by movie age, it does not resolve potential bias issues. For instance, user contributions to two movies with 5 ratings and 5000 ratings may be better balanced. However, there is less certainty that the movie with 5 ratings will have an accurate rank. Thus, the movies with less than $M_q$ ratings (i.e., $M_q = \mathbf{quantile}(\mathbf{m},\ \mathbf{probs}=q)$, where $\mathbf{m}$ is the number of ratings vector, `num_ratings`) will be filtered out prior to selecting the top $R$ recommendations for System I.
 
-Here is how recommendations are selected in System I.
+Here is how recommendations are selected in System I for Method II. Note that this is the method utilized for the Shiny App's Recommender System for genres.
 
 $$
 \mathbf{recs_{g}} = \mathbf{movies[g\ \cap\ (m \gt M_q)\ \cap\ (rank \geq rank_R)]}
@@ -472,7 +548,10 @@ $$
 
 where $\mathbf{g \in genre},\ \mathbf{M_q \in [0, n]},\ \mathbf{R \in [1, n]}$.
 
+Here is a demonstration of selecting the top movies in the Animation genre using Method II.
+
 ```{r}
+#| code-fold: true
 # movies data with new rank vector
 system1_movies = movies %>%
   left_join(movie_ranks, by='movie_id') %>%
@@ -486,10 +565,7 @@ system1_movies = movies %>%
          unweighted_mean_rating = replace_na(unweighted_mean_rating, 0),
          num_ratings = replace_na(num_ratings, 0)) %>%
   select(c("movie_id", "title", "image_url", "num_ratings", "rank", 
-           "unweighted_mean_rating", "Animation", "Children's", "Comedy",
-           "Adventure", "Fantasy", "Romance", "Drama", "Action", "Crime",
-           "Thriller", "Horror", "Sci-Fi", "Documentary", "War", "Musical",
-           "Mystery", "Film-Noir", "Western"))
+           "unweighted_mean_rating", "genres"))
 
 # save movie subset data for system I in the shiny app
 write.table(system1_movies, "../data/movies.dat", sep = "::", row.names = FALSE, quote = FALSE)
@@ -500,22 +576,31 @@ url_dl = ""
 system1_movies = readLines(paste0(data_url, 'movies.dat', url_dl))
 system1_movies = strsplit(system1_movies, 
                           split = "::", fixed = TRUE, useBytes = TRUE)
-system1_movies = matrix(unlist(system1_movies), ncol = 24, byrow = TRUE)
+system1_movies = matrix(unlist(system1_movies), ncol = 7, byrow = TRUE)
 system1_movies = data.frame(system1_movies, stringsAsFactors = FALSE)
 
 colnames(system1_movies) = system1_movies[1, ]
 system1_movies = system1_movies[-1, ]
 
-num_col = c("movie_id", "num_ratings", "rank", "unweighted_mean_rating",
-            "Animation", "Children's", "Comedy", "Adventure", "Fantasy", "Romance",
-            "Drama", "Action", "Crime", "Thriller", "Horror", "Sci-Fi",
-            "Documentary", "War", "Musical", "Mystery", "Film-Noir", "Western")
+num_col = c("movie_id", "num_ratings", "rank", "unweighted_mean_rating")
 system1_movies[, num_col] = sapply(system1_movies[, num_col], as.numeric)
 
-# example with top 10 sci-fi recommendations
-genre = "Sci-Fi"
-system1_movies[system1_movies[[genre]] == 1 , c("title", "rank")][1:10, ]
+system1_movie_genres = delCat(system1_movies$genres, sep='\\|')
+cats = c("All", sort(colnames(system1_movie_genres)))
+system1_movies = cbind(system1_movies, system1_movie_genres)
+
+# example with top comedy recommendations
+system1_movies %>%
+  filter(Animation == 1, num_ratings > quantile(num_ratings, prob=c(0.25))) %>%
+  mutate(image = paste0("<img src=", image_url, "></img>"),
+         score = round(rank, 1)) %>%
+  select(c("image", "title", "score")) %>%
+  head(5) %>%
+  datatable(class = "nowrap hover row-border", escape = FALSE,
+            options = list(dom = 't', scrollX = TRUE, autoWidth = FALSE))
 ```
+
+### Additional System I Plots
 
 Here are some reference plots to see how the movie rank trends adjust after penalty is applied.
 
@@ -530,7 +615,7 @@ system1_movies2 = system1_movies %>%
 
 penaltyForEachGenre = function(data, select_genre) {
   plot = data %>%
-    pivot_longer(cols = 6:23, names_to = "genre", values_to = "count") %>%
+    pivot_longer(cols = 8:25, names_to = "genre", values_to = "count") %>%
     filter(count > 0, genre == select_genre) %>%
     ggplot(aes(x = year, y = rank)) +
     geom_point(shape=19, alpha=0.5, color="#74BDCB") +
@@ -544,8 +629,6 @@ penaltyForEachGenre = function(data, select_genre) {
 }
 
 action = penaltyForEachGenre(system1_movies2, "Action")
-
-action
 adventure = penaltyForEachGenre(system1_movies2, "Adventure")
 animation = penaltyForEachGenre(system1_movies2, "Animation")
 childrens = penaltyForEachGenre(system1_movies2, "Children's")
@@ -602,7 +685,7 @@ grid.arrange(
 ```{r, message=FALSE, warning=FALSE}
 #| code-fold: true
 system1_movies2 %>%
-  pivot_longer(cols = 7:24, names_to = "genre", values_to = "count") %>%
+  pivot_longer(cols = 8:25, names_to = "genre", values_to = "count") %>%
   filter(count > 0) %>%
   ggplot(aes(x = year, y = rank, color=genre)) +
   geom_point(shape=19, alpha=0.1, color="#74BDCB") +
@@ -615,40 +698,43 @@ system1_movies2 %>%
 ```{r, warning=FALSE}
 #| code-fold: true
 system1_movies2 %>%
-  pivot_longer(cols = 7:24, names_to = "genre", values_to = "count") %>%
+  pivot_longer(cols = 8:25, names_to = "genre", values_to = "count") %>%
   filter(count > 0) %>%
   ggplot(aes(x = reorder(genre, -rank, median, na.rm=TRUE), y = rank)) +
   geom_boxplot(fill = "#74BDCB") +
   theme(axis.text.x = element_text(angle = 45)) +
-  ggtitle("Number of movies in each genre") + 
-  xlab("Genre")
+  ggtitle("Movie scores in each genre") + 
+  xlab("Genre") +
+  ylab("Rank")
 ```
 
 ```{r, warning=FALSE}
 #| code-fold: true
 system1_movies2 %>%
-  pivot_longer(cols = 7:24, names_to = "genre", values_to = "count") %>%
+  pivot_longer(cols = 8:25, names_to = "genre", values_to = "count") %>%
   filter(count > 0) %>%
   ggplot(aes(x = reorder(genre, -weighted_mean_rating, median, na.rm=TRUE), y = weighted_mean_rating)) +
   geom_boxplot(fill = "#74BDCB") +
   theme(axis.text.x = element_text(angle = 45)) +
-  ggtitle("Number of movies in each genre") + 
-  xlab("Genre")
+  ggtitle("Movie scores in each genre") + 
+  xlab("Genre") +
+  ylab("Weighted Mean Ratings")
 ```
 
 ```{r, warning=FALSE}
 #| code-fold: true
 system1_movies2 %>%
-  pivot_longer(cols = 7:24, names_to = "genre", values_to = "count") %>%
+  pivot_longer(cols = 8:25, names_to = "genre", values_to = "count") %>%
   filter(count > 0) %>%
   ggplot(aes(x = reorder(genre, -unweighted_mean_rating, median, na.rm=TRUE), y = unweighted_mean_rating)) +
   geom_boxplot(fill = "#74BDCB") +
   theme(axis.text.x = element_text(angle = 45)) +
-  ggtitle("Number of movies in each genre") + 
-  xlab("Genre")
+  ggtitle("Movie scores in each genre") + 
+  xlab("Genre") +
+  ylab("Unweighted Mean Ratings")
 ```
 
-## Building System II
+## Building Recommender System II
 
 Here the ratings data is pre-processed into a `realRatingMatrix` matrix, which is an `S4` object, similar to a `sparseMatrix`, that is compatible with the `Recommender` model function from the `recommenderlab` package. A train and test data split is generated from the ratings matrix, such that the first 500 rows (i.e., users) are selected for the train data, and the 501st row is selected for the test data.
 
@@ -678,9 +764,9 @@ trn_dat = rating_matrix[1:500, ]
 tst_dat = rating_matrix[501, ]
 ```
 
-### UBCF Recommender
+### Method I: User-Based Collaborative Filtering
 
-Here, a recommender model is implemented from scratch using the UBCF (User-Based Collaborative-Filtering) procedure and the cosine similarity criterion. First, each row in the train data and the test data (i.e., a single row in this case) are normalized by mean centering.
+Here, a recommender model is implemented from scratch using the UBCF (User-Based Collaborative Filtering) procedure and the cosine similarity criterion. First, each row in the train data and the test data (i.e., a single row in this case) are normalized by mean centering.
 
 ```{r}
 # normalization by centering each row for train and test data
@@ -723,10 +809,10 @@ sim = apply(trn_mat, 1, calcCosineSim, y = tst_mat)
 sim = (1 + sim) / 2 # transform to [0, 1] support
 ```
 
-Now the top 20 most similar train users with the new user are selected. The recommended items (i.e., movies) are predicted by the weighted mean of ratings for these top users with similarity scores as weights. The predictions are computed as shown below, where $\hat{p}_j$ is the estimated probability that the new user may be interested in item $j$.
+Now the top 20 most similar train users with the new user are selected. The recommended items (i.e., movies) are predicted by the weighted mean of ratings for these top users with similarity scores as weights. The predictions are computed as shown below, where $\hat{p}_i$ is the estimated probability that the new user may be interested in item $i$.
 
 $$
-\hat{p}_j = \frac{\sum_{i \in S} s_i r_{ij}}{\sum_{i \in S} s_i}, \qquad S = \{ i: (s_i \land r_{ij}) \notin \emptyset \}
+\hat{p}_i = \frac{\sum_{j \in S} s_j r_{jk}}{\sum_{j \in S} s_j}, \qquad S = \{ j: (s_j \land r_{jk}) \notin \emptyset \}
 $$
 
 ```{r}
@@ -768,6 +854,19 @@ cat("Number of predictions that change between NA and real-valued number space:"
 # should be below threshold of 1e-6
 cat("\nMaximum absolute error:", 
     max(abs(UBCF_pred - ubcf_pred), na.rm=TRUE))
+```
+
+Here is a demonstration of selecting movies that are liked by other users similar to the test user.
+
+```{r}
+pred_ids = order(UBCF_pred, decreasing = TRUE, na.last = TRUE)
+
+system1_movies[pred_ids[1:5], ] %>%
+  mutate(image = paste0("<img src=", image_url, "></img>"),
+         rating = round(unweighted_mean_rating, 1)) %>%
+  select(c("image", "title", "rating")) %>%
+  datatable(class = "nowrap hover row-border", escape = FALSE,
+            options = list(dom = 't', scrollX = TRUE, autoWidth = FALSE))
 ```
 
 Here is an implementation of receiving ratings data on a new user in longer form and pre-processing it to be compatible with a pre-trained UBCF Recommender model (i.e., the model was previously saved and then loaded in the environment as shown below). This implementation is practical when a pre-trained model is loaded elsewhere without access to the train data. This also affords the luxury of not retraining models that may be computationally expensive to train, although it is trivial in the case of UBCF due to it's light cost.
@@ -835,14 +934,28 @@ cat("Number of predictions that change between NA and real-valued number space:"
 cat("\nMaximum absolute error:", max(abs(shiny_UBCF_pred - ubcf_pred), na.rm=TRUE))
 ```
 
-### IBCF Recommender
+### Method II: Item-based Collaborative Filtering
+
+Here, a recommender model is implemented from scratch using the IBCF (Item-Based Collaborative Filtering) procedure and the cosine similarity criterion. First, each row in the train data are normalized by mean centering. A similarity matrix is computed using the cosine method for measuring similarities between different movies rather than users. The scores are transformed to $s \in [0, 1]$ to ensure non-negative weights for weighted mean calculations in the next step.
 
 ```{r}
+trn_mat = as(trn_dat, "matrix")
+user_means = rowMeans(trn_mat, na.rm = TRUE)
+trn_mat = trn_mat - user_means
 tst_mat = as(tst_dat, "matrix")
+
 sim = proxy::simil(trn_mat, by_rows = FALSE, method = "cosine")
 sim = (1 + sim) / 2 # transform to [0, 1] support
 sim = as.matrix(sim)
 ```
+
+The similarity matrix is then reordered in decreasing order such that the predicted top 30 most similar items can be selected. The recommended items are predicted by the weighted mean of ratings across items rather than users. The predictions are computed as shown below, where $\hat{p}_j$ is the estimated probability that the new user may be interested in item $j$ (i.e., predicted rating of item $j$).
+
+Let $S(i)$ be the set of items most similar to item $i$. $r_j$ is a rating given by the user for item $j$, such that $j \in S(i)$. The similarity score between items $i$ and $j$ is denoted by $s_{ij}$. Here is the weighted mean rating formula to predict a users ratings for similar items to item $i$.
+
+$$
+\hat{p}_i = \frac{\sum_{j \in S(i)\ \cap\ \{ k;\ r_k \notin \emptyset \}} s_{ij} r_j}{\sum_{j \in S(i)\ \cap\ \{ k;\ r_k \notin \emptyset \}} s_{ij}}
+$$
 
 ```{r}
 # compute weighted average of kNN users (k = 30)
@@ -856,11 +969,15 @@ weights = colSums(sim * as.vector(!is.na(tst_mat)), na.rm = TRUE)
 ibcf_pred = weighted_ratings / weights
 ```
 
+Finally, some IBCF predictions may be returned as $\infty$ values and for movies already rated by the new user. Thus, these predictions are mapped to `NA` values to "erase" them.
+
 ```{r}
 # set infinite values to NA, and movies watched by new user to NA
 ibcf_pred[is.infinite(ibcf_pred)] = NA
 ibcf_pred[!is.na(tst_mat)] = NA
 ```
+
+Now the results from the previous IBCF implementation are evaluated against the IBCF model in the `Recommender` function that is trained below.
 
 ```{r, warning=FALSE, message=FALSE}
 # initialize IBCF recommender model
@@ -880,6 +997,21 @@ cat("Number of predictions that change between NA and real-valued number space:"
 cat("\nMean absolute error over 1e-6:", 
     mean(abs(IBCF_pred - ibcf_pred) > 1e-6, na.rm=TRUE))
 ```
+
+Here is a demonstration of selecting movies that are similar movies that the test user liked.
+
+```{r}
+pred_ids = order(IBCF_pred, decreasing = TRUE, na.last = TRUE)
+
+system1_movies[pred_ids[1:5], ] %>%
+  mutate(image = paste0("<img src=", image_url, "></img>"),
+         rating = round(unweighted_mean_rating, 1)) %>%
+  select(c("image", "title", "rating")) %>%
+  datatable(class = "nowrap hover row-border", escape = FALSE,
+            options = list(dom = 't', scrollX = TRUE, autoWidth = FALSE))
+```
+
+Lastly, here is the same implementation of pre-processing new data to be evaluated by a loaded recommender model for IBCF. Since IBCF is more computationally expensive during training, leveraging this approach to loading a pre-trained model is very practical for tools such as the shiny app where users would interact with it.
 
 ```{r}
 # simulating shiny user input and recommendation
