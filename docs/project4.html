@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="W. Jonas Reger (wreger2), Hope Hunter (hhunter3)">
+<meta name="dcterms.date" content="2022-12-10">
+
+<title>Project 4: Movie Recommender</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="project4_files/libs/clipboard/clipboard.min.js"></script>
+<script src="project4_files/libs/quarto-html/quarto.js"></script>
+<script src="project4_files/libs/quarto-html/popper.min.js"></script>
+<script src="project4_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="project4_files/libs/quarto-html/anchor.min.js"></script>
+<link href="project4_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="project4_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="project4_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="project4_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="project4_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#load-data" id="toc-load-data" class="nav-link active" data-scroll-target="#load-data">Load Data</a>
+  <ul class="collapse">
+  <li><a href="#user-ratings-data" id="toc-user-ratings-data" class="nav-link" data-scroll-target="#user-ratings-data">User Ratings Data</a></li>
+  <li><a href="#movies-data" id="toc-movies-data" class="nav-link" data-scroll-target="#movies-data">Movies Data</a></li>
+  <li><a href="#users-data" id="toc-users-data" class="nav-link" data-scroll-target="#users-data">Users Data</a></li>
+  </ul></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
+  <li><a href="#building-system-i" id="toc-building-system-i" class="nav-link" data-scroll-target="#building-system-i">Building System I</a></li>
+  <li><a href="#building-system-ii" id="toc-building-system-ii" class="nav-link" data-scroll-target="#building-system-ii">Building System II</a>
+  <ul class="collapse">
+  <li><a href="#ubcf-recommender" id="toc-ubcf-recommender" class="nav-link" data-scroll-target="#ubcf-recommender">UBCF Recommender</a></li>
+  <li><a href="#ibcf-recommender" id="toc-ibcf-recommender" class="nav-link" data-scroll-target="#ibcf-recommender">IBCF Recommender</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Project 4: Movie Recommender</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/wjonasreger/movie_recommender_shiny/">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>W. Jonas Reger (wreger2), Hope Hunter (hhunter3) </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 10, 2022</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="load-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-data">Load Data</h2>
+<p>The <a href="https://liangfgithub.github.io/MovieData/">dataset</a> contains about 1 million anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000. General information about the data is introduced in this document, but for more in-depth documentation on the data refer to <code>raw/README.txt</code>.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(recommenderlab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="user-ratings-data" class="level3">
+<h3 class="anchored" data-anchor-id="user-ratings-data">User Ratings Data</h3>
+<ul>
+<li><strong>User ID</strong> (<code>user_id</code>): Number ID for each user.</li>
+<li><strong>Movie ID</strong> (<code>movie_id</code>): Number ID for each movie.</li>
+<li><strong>User Rating</strong> (<code>rating</code>): Five-star number rating (i.e., 1-5).</li>
+<li><strong>Timestamp</strong> (<code>timestamp</code>): Number of seconds since epoch (i.e., Jan 1, 1970).</li>
+</ul>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data_url = "https://github.com/wjonasreger/shiny_movie_recommender/raw/"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># url_dl = "?raw=true"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data_url <span class="ot">=</span> <span class="st">"../raw/"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>url_dl <span class="ot">=</span> <span class="st">""</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ratings <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="fu">paste0</span>(data_url, <span class="st">'ratings.dat'</span>, url_dl), </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sep =</span> <span class="st">':'</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="st">'integer'</span>, <span class="st">'NULL'</span>), </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">header =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ratings) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'user_id'</span>, <span class="st">'movie_id'</span>, <span class="st">'rating'</span>, <span class="st">'timestamp'</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ratings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  user_id movie_id rating timestamp
+1       1     1193      5 978300760
+2       1      661      3 978302109
+3       1      914      3 978301968
+4       1     3408      4 978300275
+5       1     2355      5 978824291
+6       1     1197      3 978302268</code></pre>
+</div>
+</div>
+</section>
+<section id="movies-data" class="level3">
+<h3 class="anchored" data-anchor-id="movies-data">Movies Data</h3>
+<ul>
+<li><strong>Movie ID</strong> (<code>movie_id</code>): Number ID of each movie.</li>
+<li><strong>Title</strong> (<code>title</code>): Title of each movie (including year of release).</li>
+<li><strong>Genre</strong> (<code>genre</code>): Genres of each movie.</li>
+</ul>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>movies <span class="ot">=</span> <span class="fu">readLines</span>(<span class="fu">paste0</span>(data_url, <span class="st">'movies.dat'</span>, url_dl))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>movies <span class="ot">=</span> <span class="fu">strsplit</span>(movies, <span class="at">split =</span> <span class="st">"::"</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>, <span class="at">useBytes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>movies <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(movies), <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>movies <span class="ot">=</span> <span class="fu">data.frame</span>(movies, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(movies) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'movie_id'</span>, <span class="st">'title'</span>, <span class="st">'genres'</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(movies)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  movie_id                              title                       genres
+1        1                   Toy Story (1995)  Animation|Children's|Comedy
+2        2                     Jumanji (1995) Adventure|Children's|Fantasy
+3        3            Grumpier Old Men (1995)               Comedy|Romance
+4        4           Waiting to Exhale (1995)                 Comedy|Drama
+5        5 Father of the Bride Part II (1995)                       Comedy
+6        6                        Heat (1995)        Action|Crime|Thriller</code></pre>
+</div>
+</div>
+</section>
+<section id="users-data" class="level3">
+<h3 class="anchored" data-anchor-id="users-data">Users Data</h3>
+<ul>
+<li><strong>User ID</strong> (<code>user_id</code>): Number ID of each user.</li>
+<li><strong>Gender</strong> (<code>gender</code>): Gender of user (i.e., F-M).</li>
+<li><strong>Age</strong> (<code>age</code>): Age of user (i.e., age groups).</li>
+<li><strong>Occupation</strong> (<code>occupation</code>): ID of users’ occupation type.</li>
+<li><strong>Zipcode</strong> (<code>zipcode</code>): Zipcode ID of users’ location.</li>
+</ul>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>users <span class="ot">=</span> <span class="fu">readLines</span>(<span class="fu">paste0</span>(data_url, <span class="st">'users.dat'</span>, url_dl))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>users <span class="ot">=</span> <span class="fu">strsplit</span>(users, <span class="at">split =</span> <span class="st">"::"</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>, <span class="at">useBytes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>users <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(users), <span class="at">ncol =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>users <span class="ot">=</span> <span class="fu">data.frame</span>(users, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(users) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'user_id'</span>, <span class="st">'gender'</span>, <span class="st">'age'</span>, <span class="st">'occupation'</span>, <span class="st">'zipcode'</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(users)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  user_id gender age occupation zipcode
+1       1      F   1         10   48067
+2       2      M  56         16   70072
+3       3      M  25         15   55117
+4       4      M  45          7   02460
+5       5      M  25         20   55455
+6       6      F  50          9   55117</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<p>Now some new features are added to the <code>movies</code> data.</p>
+<ul>
+<li><strong>Image URL</strong> (<code>image_url</code>): URL link to movie image.</li>
+<li><strong>Title</strong> (<code>title</code>): Movie title.</li>
+<li><strong>Year</strong> (<code>year</code>): Year of movie release.</li>
+<li><strong>Movie genre features</strong>: Binary features for each genre found in the data (i.e., 0-1)</li>
+</ul>
+<p>Here is a helper function to split the genre feature into a one-hot matrix.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>delCat <span class="ot">=</span> <span class="cf">function</span>(x, sep) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  cat_matrix <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  cats <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(x)) {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    cat_info <span class="ot">=</span> <span class="fu">strsplit</span>(x[i], sep)[[<span class="dv">1</span>]]</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(cat_info)) {</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (cat_info[j] <span class="sc">%in%</span> cats) {</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        cat_matrix[i, <span class="fu">which</span>(cat_info[j] <span class="sc">==</span> cats)] <span class="ot">=</span> 1L</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        cats <span class="ot">=</span> <span class="fu">c</span>(cats, cat_info[j])</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        cat_matrix <span class="ot">=</span> <span class="fu">cbind</span>(cat_matrix, <span class="fu">rep</span>(0L, <span class="fu">length</span>(x)))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(cat_matrix) <span class="ot">=</span> cats</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        cat_matrix[i, <span class="fu">which</span>(cat_info[j] <span class="sc">==</span> cats)] <span class="ot">=</span> 1L</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(cat_matrix)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>movie_id <span class="ot">=</span> <span class="fu">as.integer</span>(movies<span class="sc">$</span>movie_id)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>title <span class="ot">=</span> <span class="fu">iconv</span>(movies<span class="sc">$</span>title, <span class="st">"latin1"</span>, <span class="st">"UTF-8"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>small_image_url <span class="ot">=</span> <span class="st">"https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/"</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>p <span class="ot">=</span> <span class="fu">getwd</span>()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span>(<span class="fu">paste0</span>(p, <span class="st">"/../raw/MovieImages.zip"</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">exdir =</span> <span class="fu">paste0</span>(p, <span class="st">"/../data"</span>))</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>image_url <span class="ot">=</span> <span class="fu">sapply</span>(movies<span class="sc">$</span>movie_id, </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                          <span class="cf">function</span>(x) <span class="fu">paste0</span>(small_image_url, x, <span class="st">'.jpg?raw=true'</span>))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>year <span class="ot">=</span> <span class="fu">sapply</span>(movies<span class="sc">$</span>title, <span class="cf">function</span> (s) <span class="fu">str_match_all</span>(s, <span class="st">"(.*)(</span><span class="sc">\\</span><span class="st">()([</span><span class="sc">\\</span><span class="st">d]+)(</span><span class="sc">\\</span><span class="st">))(.*)"</span>)[[<span class="dv">1</span>]][<span class="dv">4</span>])</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>year <span class="ot">=</span> <span class="fu">as.numeric</span>(movies<span class="sc">$</span>year)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># movies$title = sapply(movies$title, function (s) trimws(str_match_all(s, "(.*)(\\()([\\d]+)(\\))(.*)")[[1]][2]))</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>movie_genres <span class="ot">=</span> <span class="fu">delCat</span>(movies<span class="sc">$</span>genres, <span class="at">sep=</span><span class="st">'</span><span class="sc">\\</span><span class="st">|'</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>cats <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"All"</span>, <span class="fu">colnames</span>(movie_genres))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>movies <span class="ot">=</span> <span class="fu">cbind</span>(movies, movie_genres)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(movies)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  movie_id                              title                       genres
+1        1                   Toy Story (1995)  Animation|Children's|Comedy
+2        2                     Jumanji (1995) Adventure|Children's|Fantasy
+3        3            Grumpier Old Men (1995)               Comedy|Romance
+4        4           Waiting to Exhale (1995)                 Comedy|Drama
+5        5 Father of the Bride Part II (1995)                       Comedy
+6        6                        Heat (1995)        Action|Crime|Thriller
+                                                                               image_url
+1 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/1.jpg?raw=true
+2 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/2.jpg?raw=true
+3 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/3.jpg?raw=true
+4 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/4.jpg?raw=true
+5 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/5.jpg?raw=true
+6 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/6.jpg?raw=true
+  year Animation Children's Comedy Adventure Fantasy Romance Drama Action Crime
+1 1995         1          1      1         0       0       0     0      0     0
+2 1995         0          1      0         1       1       0     0      0     0
+3 1995         0          0      1         0       0       1     0      0     0
+4 1995         0          0      1         0       0       0     1      0     0
+5 1995         0          0      1         0       0       0     0      0     0
+6 1995         0          0      0         0       0       0     0      1     1
+  Thriller Horror Sci-Fi Documentary War Musical Mystery Film-Noir Western
+1        0      0      0           0   0       0       0         0       0
+2        0      0      0           0   0       0       0         0       0
+3        0      0      0           0   0       0       0         0       0
+4        0      0      0           0   0       0       0         0       0
+5        0      0      0           0   0       0       0         0       0
+6        1      0      0           0   0       0       0         0       0</code></pre>
+</div>
+</div>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ratings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "user_id"   "movie_id"  "rating"    "timestamp"</code></pre>
+</div>
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(movies)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "movie_id"    "title"       "genres"      "image_url"   "year"       
+ [6] "Animation"   "Children's"  "Comedy"      "Adventure"   "Fantasy"    
+[11] "Romance"     "Drama"       "Action"      "Crime"       "Thriller"   
+[16] "Horror"      "Sci-Fi"      "Documentary" "War"         "Musical"    
+[21] "Mystery"     "Film-Noir"   "Western"    </code></pre>
+</div>
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(users)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "user_id"    "gender"     "age"        "occupation" "zipcode"   </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>printSummary <span class="ot">=</span> <span class="cf">function</span>(s) {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(<span class="fu">nchar</span>(s) <span class="sc">&lt;</span> <span class="dv">6</span>, <span class="fu">paste0</span>(s, <span class="st">":</span><span class="sc">\t\t</span><span class="st">"</span>), <span class="fu">paste0</span>(s, <span class="st">":</span><span class="sc">\t</span><span class="st">"</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Unique users in ratings:"</span>, <span class="fu">length</span>(<span class="fu">unique</span>(ratings<span class="sc">$</span>user_id)), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Total users:"</span>, <span class="fu">nrow</span>(users), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>))</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Unique movies in ratings:"</span>, <span class="fu">length</span>(<span class="fu">unique</span>(ratings<span class="sc">$</span>movie_id)), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Total movies:"</span>, <span class="fu">nrow</span>(movies), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>))</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ratings summary:</span><span class="sc">\n</span><span class="st">"</span>, </span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="fu">sapply</span>( <span class="fu">names</span>(<span class="fu">summary</span>(ratings<span class="sc">$</span>rating)), printSummary ), </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>           <span class="fu">round</span>(<span class="fu">summary</span>(ratings<span class="sc">$</span>rating), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Movie year summary:</span><span class="sc">\n</span><span class="st">"</span>, </span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="fu">sapply</span>( <span class="fu">names</span>(<span class="fu">summary</span>(movies<span class="sc">$</span>year)), printSummary ), </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>          <span class="fu">round</span>(<span class="fu">summary</span>(movies<span class="sc">$</span>year), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Movie year summary:</span><span class="sc">\n</span><span class="st">"</span>, </span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="fu">sapply</span>( <span class="fu">names</span>(<span class="fu">colMeans</span>(movies[, <span class="dv">6</span><span class="sc">:</span><span class="dv">23</span>])), printSummary ), </span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>           <span class="fu">round</span>(<span class="fu">colMeans</span>(movies[, <span class="dv">6</span><span class="sc">:</span><span class="dv">23</span>]), <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unique users in ratings: 6040 
+Total users: 6040 
+
+Unique movies in ratings: 3706 
+Total movies: 3883 
+
+Ratings summary:
+ Min.:      1
+ 1st Qu.:   3
+ Median:    4
+ Mean:      3.58
+ 3rd Qu.:   4
+ Max.:      5
+ 
+Movie year summary:
+ Min.:      1919
+ 1st Qu.:   1982
+ Median:    1994
+ Mean:      1986.07
+ 3rd Qu.:   1997
+ Max.:      2000
+ 
+Movie year summary:
+ Animation: 0.027
+ Children's:    0.0646
+ Comedy:    0.309
+ Adventure: 0.0729
+ Fantasy:   0.0175
+ Romance:   0.1213
+ Drama:     0.4128
+ Action:    0.1295
+ Crime:     0.0543
+ Thriller:  0.1267
+ Horror:    0.0883
+ Sci-Fi:    0.0711
+ Documentary:   0.0327
+ War:       0.0368
+ Musical:   0.0294
+ Mystery:   0.0273
+ Film-Noir: 0.0113
+ Western:   0.0175
+ </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>g1 <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(movie_id) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">select</span>(n) <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">50</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>, <span class="at">color =</span> <span class="st">"#E7F2F8"</span>) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Number of ratings per movie"</span>) <span class="sc">+</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Number of ratings"</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(rating) <span class="sc">%&gt;%</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> rating)) <span class="sc">+</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>, <span class="at">color =</span> <span class="st">"#E7F2F8"</span>) <span class="sc">+</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Movie ratings"</span>) <span class="sc">+</span> </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Rating"</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>g3 <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(timestamp) <span class="sc">%&gt;%</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.Date</span>(<span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">"1970-01-01"</span>)))) <span class="sc">+</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>, <span class="at">color =</span> <span class="st">"#E7F2F8"</span>) <span class="sc">+</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Time of Rating"</span>) <span class="sc">+</span> </span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Date"</span>)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(g1, g2, g3),</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>))</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>g1 <span class="ot">=</span> movies <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year)) <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">5</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>, <span class="at">color =</span> <span class="st">"#E7F2F8"</span>) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Year of movie release"</span>) <span class="sc">+</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">=</span> movies <span class="sc">%&gt;%</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">23</span>, <span class="at">names_to =</span> <span class="st">"genre"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(genre, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)) <span class="sc">+</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Number of movies in each genre"</span>) <span class="sc">+</span> </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Genre"</span>)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(g1, g2),</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>g1 <span class="ot">=</span> users <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">i =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> gender, <span class="at">values_from =</span> i, <span class="at">values_fill =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols=</span><span class="fu">c</span>(<span class="st">"F"</span>, <span class="st">"M"</span>), <span class="at">names_to =</span> <span class="st">"gender"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(gender, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"User genders"</span>) <span class="sc">+</span> </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Gender"</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>age_list <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"1"</span><span class="ot">=</span><span class="st">"Under 18"</span>, <span class="st">"18"</span><span class="ot">=</span><span class="st">"18-24"</span>, <span class="st">"25"</span><span class="ot">=</span><span class="st">"25-34"</span>, <span class="st">"35"</span><span class="ot">=</span><span class="st">"35-44"</span>, </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">"45"</span><span class="ot">=</span><span class="st">"45-49"</span>, <span class="st">"50"</span><span class="ot">=</span><span class="st">"50-55"</span>, <span class="st">"56"</span><span class="ot">=</span><span class="st">"56+"</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">=</span> users <span class="sc">%&gt;%</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">i =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> age, <span class="at">values_from =</span> i, <span class="at">values_fill =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols=</span><span class="dv">5</span><span class="sc">:</span><span class="dv">11</span>, <span class="at">names_to =</span> <span class="st">"age"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age_name =</span> <span class="fu">sapply</span>(age, <span class="cf">function</span>(i) </span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    age_list[[<span class="fu">as.character</span>(i)]] )) <span class="sc">%&gt;%</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(age_name, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)) <span class="sc">+</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"User ages"</span>) <span class="sc">+</span> </span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Age"</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>occu_list <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"other"</span>, <span class="st">"academic"</span>, <span class="st">"artist"</span>, <span class="st">"admin"</span>, </span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>              <span class="st">"college student"</span>, <span class="st">"customer service"</span>, <span class="st">"health care"</span>,</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>              <span class="st">"managerial"</span>, <span class="st">"farmer"</span>, <span class="st">"homemaker"</span>, <span class="st">"K-12 student"</span>,</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>              <span class="st">"lawyer"</span>, <span class="st">"programmer"</span>, <span class="st">"retired"</span>, <span class="st">"sales"</span>, <span class="st">"scientist"</span>, </span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>              <span class="st">"self-employed"</span>, <span class="st">"technician"</span>, <span class="st">"tradesman"</span>,</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>              <span class="st">"unemployed"</span>, <span class="st">"writer"</span>)</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>g3 <span class="ot">=</span> users <span class="sc">%&gt;%</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">i =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> occupation, <span class="at">values_from =</span> i, <span class="at">values_fill =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols=</span><span class="dv">5</span><span class="sc">:</span><span class="dv">25</span>, <span class="at">names_to =</span> <span class="st">"occupation"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">occu_name =</span> <span class="fu">sapply</span>(occupation, <span class="cf">function</span>(i) </span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    occu_list[[<span class="fu">as.integer</span>(i) <span class="sc">+</span> <span class="dv">1</span>]] )) <span class="sc">%&gt;%</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(occu_name, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)) <span class="sc">+</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"User occupations"</span>) <span class="sc">+</span> </span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Occupation"</span>)</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(g1, g2, g3),</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>))</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="building-system-i" class="level2">
+<h2 class="anchored" data-anchor-id="building-system-i">Building System I</h2>
+<p>The goal of System I recommender is to return the top movies of each genre using some criteria to decide what movies are most popular or trendy. After some exploratory analysis, the data appeared to have some lopsided proportions in some features. In particular, there was about a 30%-70% split of Females-Males in the <code>users</code> data set. While it may be counter-intuitive to avoid recommending what is popular by overall proportion or counts, it seemed that a correction method could be applied to equalize representation for all users as a first step towards constructing a rank vector. This is accomplished by assigning weights to each user such that under-represented users are assigned a higher weight, and over-represented users are assigned a lower weight. The formulas used to accomplish this standardization of user weights is shown below.</p>
+<p>The weights for categorical features of length <span class="math inline">\(\mathbf{n}\)</span> are simply the mean misclassification rates between a given value <span class="math inline">\(x_i\)</span> and all values in a feature vector <span class="math inline">\(\mathbf{x_{n \times 1}}\)</span>. This is applied to <code>gender</code>, <code>age</code>, and <code>occupation</code> features from the <code>users</code> data.</p>
+<p><span class="math display">\[
+w_i = \frac1n \sum_{j=1}^n \mathbf{I}(x_i \neq x_j), \qquad x_i, x_j \in \mathbf{x_{n \times 1}}, \qquad w_i \in [0, 1]
+\]</span></p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># helper function to compute weights</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>normalize_cat <span class="ot">=</span> <span class="cf">function</span>(value, data) {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">mean</span>(value <span class="sc">!=</span> data))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># compute weights such that less represented groups receive larger weight,</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># and more represented groups receive smaller weight</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>users<span class="sc">$</span>gender_weight <span class="ot">=</span> <span class="fu">sapply</span>(users<span class="sc">$</span>gender, normalize_cat, <span class="at">data=</span>users<span class="sc">$</span>gender)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>users<span class="sc">$</span>age_weight <span class="ot">=</span> <span class="fu">sapply</span>(users<span class="sc">$</span>age, normalize_cat, <span class="at">data=</span>users<span class="sc">$</span>age)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>users<span class="sc">$</span>occupation_weight <span class="ot">=</span> <span class="fu">sapply</span>(users<span class="sc">$</span>occupation, normalize_cat, <span class="at">data=</span>users<span class="sc">$</span>occupation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Another feature where representation is disproportionate is the number of ratings a user makes. To standardize this kind of influence, the weights for the number of ratings per user are computed as follows. Note that the <strong>number of ratings per user</strong> vector, <span class="math inline">\(\mathbf{r_{n \times 1}}\)</span> (i.e., <code>num_ratings</code>), is a count feature, so its support is <span class="math inline">\([0, n]\)</span>.</p>
+<p><span class="math display">\[
+w_i = 1 - \frac{r_i}{max(\mathbf{r})}, \qquad r_i \in \mathbf{r_{n \times 1}}, \qquad w_i \in [0, 1]
+\]</span></p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># coerce user_id to numeric for left join merge</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>users<span class="sc">$</span>user_id <span class="ot">=</span> <span class="fu">as.numeric</span>(users<span class="sc">$</span>user_id)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create user features from ratings data</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>user_rating_weights <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(user_id) <span class="sc">%&gt;%</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">num_ratings =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rating_weight =</span> <span class="dv">1</span> <span class="sc">-</span> num_ratings <span class="sc">/</span> <span class="fu">max</span>(num_ratings)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(user_id, rating_weight))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Finally, each user will receive a single weight value that is computed from the weight vectors for each feature that is standardized, <span class="math inline">\(\mathbf{W_{n \times p}}\)</span>. There are two methods considered; the first is a simple unweighted mean of all feature weights (i.e., <code>user_mean</code>), and the second is an L2 norm of feature weights that is scaled by the maximum L2 norm weight of users (i.e., <code>user_norm</code>). Note that the final weight vector, <span class="math inline">\(\mathbf{\bar{w}_{n \times 1}}\)</span>, should have the support <span class="math inline">\([0, 1]\)</span>.</p>
+<p>Here is the Mean User Weight (MW) formula (i.e., <code>user_mean</code>). Let the number of feature weights be $p$, and the feature weights vector for user <span class="math inline">\(i\)</span> be <span class="math inline">\(\mathbf{W}_{i\cdot}\)</span>.</p>
+<p><span class="math display">\[
+MW_i = \frac1p\sum_{j=1}^p w_{ij}, \qquad w_{ij} \in \mathbf{W}_{i \cdot}
+\]</span></p>
+<p>Here is the alternative Scaled L2 Norm User Weight (SNW) formula (i.e., <code>user_norm</code>). Let the feature weights vector for user <span class="math inline">\(k\)</span> be expressed as <span class="math inline">\(\mathbf{W}_{k\cdot}\)</span>.</p>
+<p><span class="math display">\[
+SNW_i = \frac{\lVert \mathbf{W}_{i\cdot} \rVert}{max(\lVert \mathbf{W}_{j\cdot} \rVert)_{j \in [1, n]}}
+\]</span></p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># merge new user features and create user standardized weights</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>users <span class="ot">=</span> users <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(user_rating_weights, <span class="at">by =</span> <span class="st">"user_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">user_weight =</span> <span class="fu">sqrt</span>(gender_weight<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> age_weight<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> occupation_weight<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> rating_weight<span class="sc">^</span><span class="dv">2</span>), <span class="at">user_mean =</span> (gender_weight <span class="sc">+</span> age_weight <span class="sc">+</span> occupation_weight <span class="sc">+</span> rating_weight) <span class="sc">/</span> <span class="dv">4</span>, <span class="at">user_norm =</span> user_weight <span class="sc">/</span> <span class="fu">max</span>(user_weight) )</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(users)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  user_id gender age occupation zipcode gender_weight age_weight
+1       1      F   1         10   48067      0.717053  0.9632450
+2       2      M  56         16   70072      0.282947  0.9370861
+3       3      M  25         15   55117      0.282947  0.6529801
+4       4      M  45          7   02460      0.282947  0.9089404
+5       5      M  25         20   55455      0.282947  0.6529801
+6       6      F  50          9   55117      0.717053  0.9178808
+  occupation_weight rating_weight user_weight user_mean user_norm
+1         0.9677152     0.9770959    1.825704 0.9062773 0.9904663
+2         0.9600993     0.9442524    1.664810 0.7810962 0.9031794
+3         0.9761589     0.9779602    1.554263 0.7225116 0.8432065
+4         0.8875828     0.9909248    1.635838 0.7675988 0.8874618
+5         0.9534768     0.9144339    1.500583 0.7009595 0.8140842
+6         0.9847682     0.9693172    1.807212 0.8972548 0.9804340</code></pre>
+</div>
+</div>
+<p>Here is the distribution of users standardized weights.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>users <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> user_norm)) <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill=</span><span class="st">"#74BDCB"</span>, <span class="at">color=</span><span class="st">"#E7F2F8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now a weighted mean rating, <span class="math inline">\(\bar{r}_k\)</span> (i.e., <code>weighted_mean_rating</code>), is computed for a movie <span class="math inline">\(k\)</span> from its <span class="math inline">\(m\)</span> ratings. Note that this can be interchangeable with the MW weights as well.</p>
+<p><span class="math display">\[
+\bar{r}_k = \frac{ \sum_{i=1}^m SNW_i \times r_i } {\sum_{i=1}^m SNW_i}
+\]</span></p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>weighted_ratings <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(users, <span class="at">by=</span><span class="st">"user_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="st">"user_id"</span>, <span class="st">"movie_id"</span>, <span class="st">"rating"</span>, <span class="st">"user_norm"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(movie_id) <span class="sc">%&gt;%</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weighted_rating =</span> rating <span class="sc">*</span> user_norm) <span class="sc">%&gt;%</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">weighted_mean_rating =</span> <span class="fu">sum</span>(weighted_rating) <span class="sc">/</span> <span class="fu">sum</span>(user_norm),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">unweighted_mean_rating =</span> <span class="fu">mean</span>(rating)) <span class="sc">%&gt;%</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(movie_id, weighted_mean_rating, unweighted_mean_rating))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Here is the distribution of users weighted mean ratings.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>weighted_ratings <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> weighted_mean_rating)) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill=</span><span class="st">"#74BDCB"</span>, <span class="at">color=</span><span class="st">"#E7F2F8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This shows the dispersion of user weights between the weighted and unweighted means. While there is not much dispersion, there may be subtle changes in the overall results of computing movie ranks for this system.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>weighted_ratings <span class="sc">%&gt;%</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(weighted_mean_rating, unweighted_mean_rating)) <span class="sc">%&gt;%</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>weighted_mean_rating, <span class="at">y=</span>unweighted_mean_rating)) <span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape=</span><span class="dv">19</span>, <span class="at">alpha=</span><span class="fl">0.5</span>, <span class="at">color=</span><span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">color=</span><span class="st">"#FFA384"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This new vector, <span class="math inline">\(\bar{r}\)</span>, now represents the user contributions to movie ratings more equally such that users of any marginalized groups in the data have more weighted influence in overall ratings to offset for their lower counts. The next step in constructing a rank vector is an additional objective to prefer recommending more recent movies over older movies (i.e., downward sloping rank trends as year of release increases are visible in the scatterplots shown below in this section). Older movies may still be very popular amongst users, but it is a practical interest to try lifting more recent movies in the rank vector (i.e., or pushing older movies down) such that users are recommended movies that are not only popular but also new. One motivation for adding this feature to the rank system is that the inertia of popularity in older movies may be difficult for newer movies to overwhelm quickly while they are still new. So, a penalty term is applied to give newer movies some chance to appear in top ranks over older movies that have a lot of popularity inertia. This essentially gives newer movies the chance to be in the “spotlight” and garner popularity by attracting users and their ratings. The penalty term was chosen specifically to lessen the rank loss when comparing older movies, so it only separates very recent movies from less recent movies in a greater loss. For instance, two movies made in 1900 and 1980 experiences a smaller difference in rank loss compared to movies made in 1995 and 2000. Ideally, this penalty term could be tuned to minimize error towards predicting the true rank vector. However, since the true rank vector is not observed, a simple penalty term criterion is used as shown below.</p>
+<p><span class="math display">\[
+\mathbf{\lambda}_k = \log (\max(\mathbf{year}) -\mathbf{year}_k + 1)
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{\bar{r}'}_k = \mathbf{\bar{r}}_k - \frac{\mathbf{\lambda}_k}{\max(\mathbf{\lambda}_k)}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{rank}_k = \frac{\mathbf{\bar{r}'}_k - \min(\mathbf{\bar{r}'}_k)}{\max(\mathbf{\bar{r}'}_k - \min(\mathbf{\bar{r}'}_k))} \times 100
+\]</span></p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>movie_ranks <span class="ot">=</span> movies <span class="sc">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(weighted_ratings, <span class="at">by=</span><span class="st">'movie_id'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(movie_id, year, weighted_mean_rating, unweighted_mean_rating)) <span class="sc">%&gt;%</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log_age =</span> <span class="fu">log</span>(<span class="fu">max</span>(year) <span class="sc">-</span> year <span class="sc">+</span> <span class="dv">1</span>), </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">penalty =</span> log_age <span class="sc">/</span> <span class="fu">max</span>(log_age), </span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">adj_rating =</span> weighted_mean_rating <span class="sc">-</span> penalty, </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">rank =</span> (adj_rating <span class="sc">-</span> <span class="fu">min</span>(adj_rating, <span class="at">na.rm=</span><span class="cn">TRUE</span>)) <span class="sc">*</span> <span class="dv">100</span> <span class="sc">/</span> </span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>           <span class="fu">max</span>(adj_rating <span class="sc">-</span> <span class="fu">min</span>(adj_rating, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">na.rm=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(movie_id, rank, weighted_mean_rating, unweighted_mean_rating))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Here is the distribution of the movie ranks.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>movie_ranks <span class="sc">%&gt;%</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> rank)) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">5</span>, <span class="at">fill=</span><span class="st">"#74BDCB"</span>, <span class="at">color=</span><span class="st">"#E7F2F8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 177 rows containing non-finite values (stat_bin).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Here is the Generative Additive Model regression line plotted over the weighted mean ratings for each movie prior to adding the penalty term.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>movie_ranks <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(movies, <span class="at">by=</span><span class="st">"movie_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(year, rank, weighted_mean_rating)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>weighted_mean_rating)) <span class="sc">+</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape=</span><span class="dv">19</span>, <span class="at">alpha=</span><span class="fl">0.5</span>, <span class="at">color=</span><span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>weighted_mean_rating, <span class="at">method=</span><span class="st">"gam"</span>), <span class="at">color=</span><span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Here is the plot for weighted mean ratings of movies after applying the penalty term. This is the final rank vector for System I recommendations. It is visible in comparing these plots and the many plots later in this section, that the penalty seems to support newer movies for a brief time of about 5 years to overwhelm the inertia of popularity for older movies.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>movie_ranks <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(movies, <span class="at">by=</span><span class="st">"movie_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(year, rank, weighted_mean_rating, unweighted_mean_rating)) <span class="sc">%&gt;%</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>rank)) <span class="sc">+</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape=</span><span class="dv">19</span>, <span class="at">alpha=</span><span class="fl">0.5</span>, <span class="at">color=</span><span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">color=</span><span class="st">"Rank + Penalty"</span>)) <span class="sc">+</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>weighted_mean_rating<span class="sc">*</span><span class="dv">20</span>, <span class="at">color=</span><span class="st">"Rank"</span>), <span class="at">lty=</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Movie rank trend over years"</span>) <span class="sc">+</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Rank"</span>) <span class="sc">+</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">name=</span><span class="st">"Regression Model"</span>,</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks=</span><span class="fu">c</span>(<span class="st">"Rank"</span>, <span class="st">"Rank + Penalty"</span>),</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                     <span class="at">values=</span><span class="fu">c</span>(<span class="st">"Rank"</span><span class="ot">=</span><span class="st">"red"</span>, <span class="st">"Rank + Penalty"</span><span class="ot">=</span><span class="st">"#FFA384"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now a rank vector has been created and can be used in next steps for System I. When a genre is selected, the top <span class="math inline">\(R\)</span> ranked movies of the genre subset are selected for recommendation. However, one potential issue that was not addressed in creating the rank vector are movies with few ratings. While the representation of user contributions to movie ratings have been equalized, it does not resolve potential bias issues. For instance, user contributions to two movies with 5 ratings and 5000 ratings may be better balanced. However, there is less certainty that the movie with 5 ratings will have an accurate rank. Thus, the movies with less than <span class="math inline">\(M_q\)</span> ratings (i.e., <span class="math inline">\(M_q = \mathbf{quantile}(\mathbf{m},\ \mathbf{probs}=q)\)</span>, where <span class="math inline">\(\mathbf{m}\)</span> is the number of ratings vector, <code>num_ratings</code>) will be filtered out prior to selecting the top <span class="math inline">\(R\)</span> recommendations for System I.</p>
+<p>Here is how recommendations are selected in System I.</p>
+<p><span class="math display">\[
+\mathbf{recs_{g}} = \mathbf{movies[g\ \cap\ (m \gt M_q)\ \cap\ (rank \geq rank_R)]}
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{g \in genre},\ \mathbf{M_q \in [0, n]},\ \mathbf{R \in [1, n]}\)</span>.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># movies data with new rank vector</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>system1_movies <span class="ot">=</span> movies <span class="sc">%&gt;%</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(movie_ranks, <span class="at">by=</span><span class="st">'movie_id'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(rank)) <span class="sc">%&gt;%</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(ratings <span class="sc">%&gt;%</span> </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>              <span class="fu">group_by</span>(movie_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>              <span class="fu">summarise</span>(<span class="at">num_ratings =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>              <span class="fu">select</span>(<span class="fu">c</span>(<span class="st">"movie_id"</span>, <span class="st">"num_ratings"</span>)), </span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">by=</span><span class="st">"movie_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rank =</span> <span class="fu">replace_na</span>(rank, <span class="sc">-</span><span class="dv">1</span>), </span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">unweighted_mean_rating =</span> <span class="fu">replace_na</span>(unweighted_mean_rating, <span class="dv">0</span>),</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">num_ratings =</span> <span class="fu">replace_na</span>(num_ratings, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="st">"movie_id"</span>, <span class="st">"title"</span>, <span class="st">"image_url"</span>, <span class="st">"num_ratings"</span>, <span class="st">"rank"</span>, </span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>           <span class="st">"unweighted_mean_rating"</span>, <span class="st">"Animation"</span>, <span class="st">"Children's"</span>, <span class="st">"Comedy"</span>,</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Adventure"</span>, <span class="st">"Fantasy"</span>, <span class="st">"Romance"</span>, <span class="st">"Drama"</span>, <span class="st">"Action"</span>, <span class="st">"Crime"</span>,</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Thriller"</span>, <span class="st">"Horror"</span>, <span class="st">"Sci-Fi"</span>, <span class="st">"Documentary"</span>, <span class="st">"War"</span>, <span class="st">"Musical"</span>,</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Mystery"</span>, <span class="st">"Film-Noir"</span>, <span class="st">"Western"</span>))</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="co"># save movie subset data for system I in the shiny app</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="fu">write.table</span>(system1_movies, <span class="st">"../data/movies.dat"</span>, <span class="at">sep =</span> <span class="st">"::"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="co"># load data</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>data_url <span class="ot">=</span> <span class="st">"../data/"</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>url_dl <span class="ot">=</span> <span class="st">""</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>system1_movies <span class="ot">=</span> <span class="fu">readLines</span>(<span class="fu">paste0</span>(data_url, <span class="st">'movies.dat'</span>, url_dl))</span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>system1_movies <span class="ot">=</span> <span class="fu">strsplit</span>(system1_movies, </span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>                          <span class="at">split =</span> <span class="st">"::"</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>, <span class="at">useBytes =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>system1_movies <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(system1_movies), <span class="at">ncol =</span> <span class="dv">24</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>system1_movies <span class="ot">=</span> <span class="fu">data.frame</span>(system1_movies, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(system1_movies) <span class="ot">=</span> system1_movies[<span class="dv">1</span>, ]</span>
+<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a>system1_movies <span class="ot">=</span> system1_movies[<span class="sc">-</span><span class="dv">1</span>, ]</span>
+<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a>num_col <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"movie_id"</span>, <span class="st">"num_ratings"</span>, <span class="st">"rank"</span>, <span class="st">"unweighted_mean_rating"</span>,</span>
+<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Animation"</span>, <span class="st">"Children's"</span>, <span class="st">"Comedy"</span>, <span class="st">"Adventure"</span>, <span class="st">"Fantasy"</span>, <span class="st">"Romance"</span>,</span>
+<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Drama"</span>, <span class="st">"Action"</span>, <span class="st">"Crime"</span>, <span class="st">"Thriller"</span>, <span class="st">"Horror"</span>, <span class="st">"Sci-Fi"</span>,</span>
+<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Documentary"</span>, <span class="st">"War"</span>, <span class="st">"Musical"</span>, <span class="st">"Mystery"</span>, <span class="st">"Film-Noir"</span>, <span class="st">"Western"</span>)</span>
+<span id="cb36-38"><a href="#cb36-38" aria-hidden="true" tabindex="-1"></a>system1_movies[, num_col] <span class="ot">=</span> <span class="fu">sapply</span>(system1_movies[, num_col], as.numeric)</span>
+<span id="cb36-39"><a href="#cb36-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-40"><a href="#cb36-40" aria-hidden="true" tabindex="-1"></a><span class="co"># example with top 10 sci-fi recommendations</span></span>
+<span id="cb36-41"><a href="#cb36-41" aria-hidden="true" tabindex="-1"></a>genre <span class="ot">=</span> <span class="st">"Sci-Fi"</span></span>
+<span id="cb36-42"><a href="#cb36-42" aria-hidden="true" tabindex="-1"></a>system1_movies[system1_movies[[genre]] <span class="sc">==</span> <span class="dv">1</span> , <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"rank"</span>)][<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                          title
+19                                                           Matrix, The (1999)
+101                                                                X-Men (2000)
+146                                   Star Wars: Episode IV - A New Hope (1977)
+179                                  Ghost in the Shell (Kokaku kidotai) (1995)
+195                                           City of Lost Children, The (1995)
+219                                       Open Your Eyes (Abre los ojos) (1997)
+228 Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1963)
+233                                                         Galaxy Quest (1999)
+245                                                         Blade Runner (1982)
+267                       Star Wars: Episode V - The Empire Strikes Back (1980)
+        rank
+19  82.95539
+101 76.22099
+146 74.33862
+179 73.47318
+195 72.84973
+219 72.48005
+228 72.32577
+233 72.16879
+245 71.84358
+267 71.67879</code></pre>
+</div>
+</div>
+<p>Here are some reference plots to see how the movie rank trends adjust after penalty is applied.</p>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>system1_movies2 <span class="ot">=</span> system1_movies <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(movies <span class="sc">%&gt;%</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">select</span>(<span class="fu">c</span>(<span class="st">"movie_id"</span>, <span class="st">"year"</span>)), <span class="at">by=</span><span class="st">"movie_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(weighted_ratings <span class="sc">%&gt;%</span> </span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">select</span>(<span class="fu">c</span>(<span class="st">"movie_id"</span>, <span class="st">"weighted_mean_rating"</span>)), <span class="at">by=</span><span class="st">"movie_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(rank <span class="sc">&gt;</span> <span class="sc">-</span><span class="dv">1</span>, unweighted_mean_rating <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>penaltyForEachGenre <span class="ot">=</span> <span class="cf">function</span>(data, select_genre) {</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">=</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">23</span>, <span class="at">names_to =</span> <span class="st">"genre"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">0</span>, genre <span class="sc">==</span> select_genre) <span class="sc">%&gt;%</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> rank)) <span class="sc">+</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">shape=</span><span class="dv">19</span>, <span class="at">alpha=</span><span class="fl">0.5</span>, <span class="at">color=</span><span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">shape=</span><span class="dv">20</span>, <span class="at">alpha=</span><span class="fl">0.5</span>, <span class="at">color=</span><span class="st">"red"</span>, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>weighted_mean_rating<span class="sc">*</span><span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"gam"</span>, <span class="at">color=</span><span class="st">"#FFA384"</span>) <span class="sc">+</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"gam"</span>, <span class="at">fullrange=</span><span class="cn">TRUE</span>, </span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>weighted_mean_rating<span class="sc">*</span><span class="dv">20</span>), <span class="at">color=</span><span class="st">"red"</span>, <span class="at">lty=</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste0</span>(<span class="st">"Movie ranks over years: "</span>, select_genre)) <span class="sc">+</span></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span></span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">"Rank"</span>)</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>action <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Action"</span>)</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>action</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>adventure <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Adventure"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>animation <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Animation"</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>childrens <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Children's"</span>)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(action, adventure, animation, childrens),</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>comedy <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Comedy"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>crime <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Crime"</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>documentary <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Documentary"</span>)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>drama <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Drama"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(comedy, crime, documentary, drama),</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-20-3.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>fantasy <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Fantasy"</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>film_noir <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Film-Noir"</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>horror <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Horror"</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>musical <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Musical"</span>)</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(fantasy, film_noir, horror, musical),</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-20-4.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>mystery <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Mystery"</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>romance <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Romance"</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>sci_fi <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Sci-Fi"</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>thriller <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Thriller"</span>)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(mystery, romance, sci_fi, thriller),</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-20-5.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>war <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"War"</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>western <span class="ot">=</span> <span class="fu">penaltyForEachGenre</span>(system1_movies2, <span class="st">"Western"</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">grobs =</span> <span class="fu">list</span>(war, western),</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">layout_matrix =</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-20-6.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>system1_movies2 <span class="sc">%&gt;%</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">24</span>, <span class="at">names_to =</span> <span class="st">"genre"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> rank, <span class="at">color=</span>genre)) <span class="sc">+</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape=</span><span class="dv">19</span>, <span class="at">alpha=</span><span class="fl">0.1</span>, <span class="at">color=</span><span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"gam"</span>, <span class="fu">aes</span>(<span class="at">fill=</span>genre), <span class="at">fullrange=</span><span class="cn">TRUE</span>, <span class="at">se=</span><span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rank (+ penalty) trends of each genre over years"</span>) <span class="sc">+</span> </span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Rank"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>system1_movies2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">24</span>, <span class="at">names_to =</span> <span class="st">"genre"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(genre, <span class="sc">-</span>rank, median, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">y =</span> rank)) <span class="sc">+</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)) <span class="sc">+</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Number of movies in each genre"</span>) <span class="sc">+</span> </span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Genre"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>system1_movies2 <span class="sc">%&gt;%</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">24</span>, <span class="at">names_to =</span> <span class="st">"genre"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(genre, <span class="sc">-</span>weighted_mean_rating, median, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">y =</span> weighted_mean_rating)) <span class="sc">+</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)) <span class="sc">+</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Number of movies in each genre"</span>) <span class="sc">+</span> </span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Genre"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>system1_movies2 <span class="sc">%&gt;%</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">24</span>, <span class="at">names_to =</span> <span class="st">"genre"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(genre, <span class="sc">-</span>unweighted_mean_rating, median, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">y =</span> unweighted_mean_rating)) <span class="sc">+</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#74BDCB"</span>) <span class="sc">+</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)) <span class="sc">+</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Number of movies in each genre"</span>) <span class="sc">+</span> </span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Genre"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="project4_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="building-system-ii" class="level2">
+<h2 class="anchored" data-anchor-id="building-system-ii">Building System II</h2>
+<p>Here the ratings data is pre-processed into a <code>realRatingMatrix</code> matrix, which is an <code>S4</code> object, similar to a <code>sparseMatrix</code>, that is compatible with the <code>Recommender</code> model function from the <code>recommenderlab</code> package. A train and test data split is generated from the ratings matrix, such that the first 500 rows (i.e., users) are selected for the train data, and the 501st row is selected for the test data.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preprocess train and test data for UBCF training and prediction of "new user"</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>user_id <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">'u'</span>, ratings<span class="sc">$</span>user_id)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>movie_id <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">'m'</span>, ratings<span class="sc">$</span>movie_id)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>ratings_val <span class="ot">=</span> ratings<span class="sc">$</span>rating</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co"># longer data frame &gt; sparseMatrix &gt; realRatingMatrix</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>tmp_data <span class="ot">=</span> <span class="fu">data.frame</span>(user_id, movie_id, ratings_val, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>rating_matrix <span class="ot">=</span> <span class="fu">sparseMatrix</span>(</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.integer</span>(tmp_data<span class="sc">$</span>user_id), </span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.integer</span>(tmp_data<span class="sc">$</span>movie_id),</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> tmp_data<span class="sc">$</span>ratings_val</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(rating_matrix) <span class="ot">=</span> <span class="fu">levels</span>(tmp_data<span class="sc">$</span>user_id)</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(rating_matrix) <span class="ot">=</span> <span class="fu">levels</span>(tmp_data<span class="sc">$</span>movie_id)</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>tmp_user <span class="ot">=</span> <span class="fu">rownames</span>(rating_matrix)[<span class="dv">501</span>]</span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>rating_matrix <span class="ot">=</span> <span class="fu">new</span>(<span class="st">"realRatingMatrix"</span>, <span class="at">data =</span> rating_matrix)</span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a><span class="co"># train-test data</span></span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a>trn_dat <span class="ot">=</span> rating_matrix[<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>, ]</span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>tst_dat <span class="ot">=</span> rating_matrix[<span class="dv">501</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="ubcf-recommender" class="level3">
+<h3 class="anchored" data-anchor-id="ubcf-recommender">UBCF Recommender</h3>
+<p>Here, a recommender model is implemented from scratch using the UBCF (User-Based Collaborative-Filtering) procedure and the cosine similarity criterion. First, each row in the train data and the test data (i.e., a single row in this case) are normalized by mean centering.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># normalization by centering each row for train and test data</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="co"># train data centering</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>trn_mat <span class="ot">=</span> <span class="fu">as</span>(trn_dat, <span class="st">"matrix"</span>)</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>user_means <span class="ot">=</span> <span class="fu">rowMeans</span>(trn_mat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>trn_mat <span class="ot">=</span> trn_mat <span class="sc">-</span> user_means</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="co"># test data centering</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>tst_mat <span class="ot">=</span> <span class="fu">as</span>(tst_dat, <span class="st">"matrix"</span>)</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>new_user_mean <span class="ot">=</span> <span class="fu">mean</span>(tst_mat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>tst_mat <span class="ot">=</span> tst_mat <span class="sc">-</span> new_user_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now the new user ratings data is compared with each known user of the train data. A similarity score is computed for each train row using the cosine method as shown below. The scores are transformed to <span class="math inline">\(s \in [0, 1]\)</span> to ensure non-negative weights for weighted mean calculations in the next step.</p>
+<p><span class="math display">\[
+\text{sim}(s, t) = \frac{s^tt}{\lVert s \rVert \cdot \lVert t \rVert}, \qquad s, t \in \mathcal{\rm I\!R}^p
+\]</span></p>
+<p>A helper function <code>calcCosineSim</code> is defined to compute the similarity scores.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># computing row similarities with cosine method</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>calcCosineSim <span class="ot">=</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  sim <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">=</span> <span class="fu">as.vector</span>(x)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">=</span> <span class="fu">as.vector</span>(y)</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">=</span> <span class="fu">intersect</span>(<span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)), <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(y)))</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(idx) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">=</span> x[idx]</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">=</span> y[idx]</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    sim <span class="ot">=</span> <span class="fu">sum</span>(x <span class="sc">*</span> y) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>(x<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(sim)</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a><span class="co"># compute similarity of rating vectors between new user and known users</span></span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>sim <span class="ot">=</span> <span class="fu">apply</span>(trn_mat, <span class="dv">1</span>, calcCosineSim, <span class="at">y =</span> tst_mat)</span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a><span class="co"># sim = proxy::simil(trn_mat, tst_mat, method = "cosine") # alternative</span></span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>sim <span class="ot">=</span> (<span class="dv">1</span> <span class="sc">+</span> sim) <span class="sc">/</span> <span class="dv">2</span> <span class="co"># transform to [0, 1] support</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now the top 20 most similar train users with the new user are selected. The recommended items (i.e., movies) are predicted by the weighted mean of ratings for these top users with similarity scores as weights. The predictions are computed as shown below, where <span class="math inline">\(\hat{p}_j\)</span> is the estimated probability that the new user may be interested in item <span class="math inline">\(j\)</span>.</p>
+<p><span class="math display">\[
+\hat{p}_j = \frac{\sum_{i \in S} s_i r_{ij}}{\sum_{i \in S} s_i}, \qquad S = \{ i: (s_i \land r_{ij}) \notin \emptyset \}
+\]</span></p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute weighted average of kNN users (k = 20)</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>top_users_idx <span class="ot">=</span> <span class="fu">order</span>(sim, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>]</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>sim[<span class="sc">-</span>top_users_idx] <span class="ot">=</span> <span class="cn">NA</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>weighted_ratings <span class="ot">=</span> <span class="fu">colSums</span>(trn_mat <span class="sc">*</span> sim, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">=</span> <span class="fu">colSums</span>((<span class="sc">!</span><span class="fu">is.na</span>(trn_mat)) <span class="sc">*</span> sim, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>ubcf_pred <span class="ot">=</span> weighted_ratings <span class="sc">/</span> weights</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Finally, the UBCF predictions are returned to the five-star rating space by adding back the new user’s mean rating. Additionally, some predictions may be returned as <span class="math inline">\(\infty\)</span> values and for movies already rated by the new user. Thus, these predictions are mapped to <code>NA</code> values to “erase” them.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add back the mean of new user</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>ubcf_pred <span class="ot">=</span> ubcf_pred <span class="sc">+</span> new_user_mean</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="co"># set infinite values to NA, and movies watched by new user to NA</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>ubcf_pred[<span class="fu">is.nan</span>(ubcf_pred)] <span class="ot">=</span> <span class="cn">NA</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>ubcf_pred[<span class="sc">!</span><span class="fu">is.na</span>(tst_mat)] <span class="ot">=</span> <span class="cn">NA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now the results from the previous UBCF implementation are evaluated against the UBCF model in the <code>Recommender</code> function that is trained below.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize UBCF recommender model</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>UBCF_recommender <span class="ot">=</span> <span class="fu">Recommender</span>(trn_dat, <span class="at">method =</span> <span class="st">"UBCF"</span>,</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">parameter =</span> <span class="fu">list</span>(<span class="at">normalize =</span> <span class="st">"center"</span>, </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">method =</span> <span class="st">"Cosine"</span>, <span class="at">nn =</span> <span class="dv">20</span>))</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="co"># save model</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(UBCF_recommender, <span class="at">file =</span> <span class="st">"../data/ubcf.rds"</span>)</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="co"># predict items for new user</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>UBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(UBCF_recommender, tst_dat, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>UBCF_pred <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">as</span>(UBCF_pred, <span class="st">"matrix"</span>))</span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a><span class="co"># should be 0</span></span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of predictions that change between NA and real-valued number space:"</span>, </span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">is.na</span>(UBCF_pred) <span class="sc">!=</span> <span class="fu">is.na</span>(ubcf_pred)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of predictions that change between NA and real-valued number space: 0</code></pre>
+</div>
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># should be below threshold of 1e-6</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Maximum absolute error:"</span>, </span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(<span class="fu">abs</span>(UBCF_pred <span class="sc">-</span> ubcf_pred), <span class="at">na.rm=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Maximum absolute error: 4.953572e-07</code></pre>
+</div>
+</div>
+<p>Here is an implementation of receiving ratings data on a new user in longer form and pre-processing it to be compatible with a pre-trained UBCF Recommender model (i.e., the model was previously saved and then loaded in the environment as shown below). This implementation is practical when a pre-trained model is loaded elsewhere without access to the train data. This also affords the luxury of not retraining models that may be computationally expensive to train, although it is trivial in the case of UBCF due to it’s light cost.</p>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># helper function to preprocess long-form data for new user ratings into rRM obj</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>preprocessRatings <span class="ot">=</span> <span class="cf">function</span>(user_input, rec_mod) {</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  user_input<span class="sc">$</span>movie_id <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">'m'</span>, user_input<span class="sc">$</span>movie_id)</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dataframe &gt; sparseMatrix &gt; realRatingMatrix</span></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># note: it is necessary to get factor levels across all items</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># already existing in recommender model before filtering out</span></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rows with NA ratings.</span></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>  method <span class="ot">=</span> rec_mod<span class="sc">@</span>method</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (method <span class="sc">==</span> <span class="st">"UBCF"</span>) {</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>    RRM_items <span class="ot">=</span> rec_mod<span class="sc">@</span>model<span class="sc">$</span>data<span class="sc">@</span>data<span class="sc">@</span>Dimnames[[<span class="dv">2</span>]]</span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (method <span class="sc">==</span> <span class="st">"IBCF"</span>) {</span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>    RRM_items <span class="ot">=</span> rec_mod<span class="sc">@</span>model<span class="sc">$</span>sim<span class="sc">@</span>Dimnames[[<span class="dv">2</span>]]</span>
+<span id="cb57-14"><a href="#cb57-14" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb57-15"><a href="#cb57-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span></span>
+<span id="cb57-16"><a href="#cb57-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb57-17"><a href="#cb57-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-18"><a href="#cb57-18" aria-hidden="true" tabindex="-1"></a>  tmp_data <span class="ot">=</span> <span class="fu">data.frame</span>( <span class="at">movie_id =</span> RRM_items ) <span class="sc">%&gt;%</span></span>
+<span id="cb57-19"><a href="#cb57-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(user_input, <span class="st">"movie_id"</span>)</span>
+<span id="cb57-20"><a href="#cb57-20" aria-hidden="true" tabindex="-1"></a>  tmp_data<span class="sc">$</span>user_id <span class="ot">=</span> <span class="fu">rep</span>(<span class="st">"u0"</span>, <span class="fu">nrow</span>(tmp_data))</span>
+<span id="cb57-21"><a href="#cb57-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-22"><a href="#cb57-22" aria-hidden="true" tabindex="-1"></a>  tmp_data <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb57-23"><a href="#cb57-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">user_id =</span> tmp_data<span class="sc">$</span>user_id,</span>
+<span id="cb57-24"><a href="#cb57-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">movie_id =</span> tmp_data<span class="sc">$</span>movie_id,</span>
+<span id="cb57-25"><a href="#cb57-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">rating =</span> <span class="fu">as.integer</span>(tmp_data<span class="sc">$</span>rating),</span>
+<span id="cb57-26"><a href="#cb57-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span></span>
+<span id="cb57-27"><a href="#cb57-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb57-28"><a href="#cb57-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>()</span>
+<span id="cb57-29"><a href="#cb57-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-30"><a href="#cb57-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># tmp_data = head(tmp_data, 10)</span></span>
+<span id="cb57-31"><a href="#cb57-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-32"><a href="#cb57-32" aria-hidden="true" tabindex="-1"></a>  rating_matrix <span class="ot">=</span> <span class="fu">sparseMatrix</span>(</span>
+<span id="cb57-33"><a href="#cb57-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">dims =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">length</span>(RRM_items)),</span>
+<span id="cb57-34"><a href="#cb57-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.integer</span>(tmp_data<span class="sc">$</span>user_id),</span>
+<span id="cb57-35"><a href="#cb57-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.integer</span>(tmp_data<span class="sc">$</span>movie_id),</span>
+<span id="cb57-36"><a href="#cb57-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> tmp_data<span class="sc">$</span>rating</span>
+<span id="cb57-37"><a href="#cb57-37" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb57-38"><a href="#cb57-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-39"><a href="#cb57-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(rating_matrix) <span class="ot">=</span> <span class="fu">levels</span>(tmp_data<span class="sc">$</span>user_id)</span>
+<span id="cb57-40"><a href="#cb57-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(rating_matrix) <span class="ot">=</span> <span class="fu">levels</span>(tmp_data<span class="sc">$</span>movie_id)</span>
+<span id="cb57-41"><a href="#cb57-41" aria-hidden="true" tabindex="-1"></a>  rating_matrix <span class="ot">=</span> <span class="fu">new</span>(<span class="st">"realRatingMatrix"</span>, <span class="at">data =</span> rating_matrix)</span>
+<span id="cb57-42"><a href="#cb57-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb57-43"><a href="#cb57-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(rating_matrix)</span>
+<span id="cb57-44"><a href="#cb57-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb57-45"><a href="#cb57-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-46"><a href="#cb57-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-47"><a href="#cb57-47" aria-hidden="true" tabindex="-1"></a><span class="co"># simulating shiny user input and recommendation</span></span>
+<span id="cb57-48"><a href="#cb57-48" aria-hidden="true" tabindex="-1"></a>new_shiny_user <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb57-49"><a href="#cb57-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(user_id <span class="sc">==</span> <span class="fu">substr</span>(tmp_user, <span class="dv">2</span>, <span class="fu">nchar</span>(tmp_user))) <span class="sc">%&gt;%</span></span>
+<span id="cb57-50"><a href="#cb57-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(user_id, movie_id, rating))</span>
+<span id="cb57-51"><a href="#cb57-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-52"><a href="#cb57-52" aria-hidden="true" tabindex="-1"></a>UBCF_REC_MOD <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="st">"../data/ubcf.rds"</span>)</span>
+<span id="cb57-53"><a href="#cb57-53" aria-hidden="true" tabindex="-1"></a>shiny_rating_matrix <span class="ot">=</span> <span class="fu">preprocessRatings</span>(new_shiny_user, UBCF_REC_MOD)</span>
+<span id="cb57-54"><a href="#cb57-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-55"><a href="#cb57-55" aria-hidden="true" tabindex="-1"></a>shiny_UBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(UBCF_REC_MOD, shiny_rating_matrix, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
+<span id="cb57-56"><a href="#cb57-56" aria-hidden="true" tabindex="-1"></a>shiny_UBCF_pred <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">as</span>(shiny_UBCF_pred, <span class="st">"matrix"</span>))</span>
+<span id="cb57-57"><a href="#cb57-57" aria-hidden="true" tabindex="-1"></a><span class="co"># should be 0</span></span>
+<span id="cb57-58"><a href="#cb57-58" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of predictions that change between NA and real-valued number space:"</span>, <span class="fu">sum</span>(<span class="fu">is.na</span>(shiny_UBCF_pred) <span class="sc">!=</span> <span class="fu">is.na</span>(ubcf_pred)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of predictions that change between NA and real-valued number space: 0</code></pre>
+</div>
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># should be below threshold of 1e-6</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Maximum absolute error:"</span>, <span class="fu">max</span>(<span class="fu">abs</span>(shiny_UBCF_pred <span class="sc">-</span> ubcf_pred), <span class="at">na.rm=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Maximum absolute error: 4.953572e-07</code></pre>
+</div>
+</div>
+</section>
+<section id="ibcf-recommender" class="level3">
+<h3 class="anchored" data-anchor-id="ibcf-recommender">IBCF Recommender</h3>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>tst_mat <span class="ot">=</span> <span class="fu">as</span>(tst_dat, <span class="st">"matrix"</span>)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>sim <span class="ot">=</span> proxy<span class="sc">::</span><span class="fu">simil</span>(trn_mat, <span class="at">by_rows =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">"cosine"</span>)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>sim <span class="ot">=</span> (<span class="dv">1</span> <span class="sc">+</span> sim) <span class="sc">/</span> <span class="dv">2</span> <span class="co"># transform to [0, 1] support</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>sim <span class="ot">=</span> <span class="fu">as.matrix</span>(sim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute weighted average of kNN users (k = 30)</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (item <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">dim</span>(sim)[<span class="dv">2</span>]) {</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  tmp_ids <span class="ot">=</span> <span class="fu">tail</span>(<span class="fu">order</span>(sim[, item], <span class="at">decreasing =</span> <span class="cn">FALSE</span>, <span class="at">na.last =</span> <span class="cn">FALSE</span>), <span class="dv">30</span>)</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>  sim[<span class="sc">-</span>tmp_ids, item] <span class="ot">=</span> <span class="cn">NA</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>weighted_ratings <span class="ot">=</span> <span class="fu">colSums</span>(sim <span class="sc">*</span> <span class="fu">as.vector</span>(tst_mat), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">=</span> <span class="fu">colSums</span>(sim <span class="sc">*</span> <span class="fu">as.vector</span>(<span class="sc">!</span><span class="fu">is.na</span>(tst_mat)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>ibcf_pred <span class="ot">=</span> weighted_ratings <span class="sc">/</span> weights</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set infinite values to NA, and movies watched by new user to NA</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>ibcf_pred[<span class="fu">is.infinite</span>(ibcf_pred)] <span class="ot">=</span> <span class="cn">NA</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>ibcf_pred[<span class="sc">!</span><span class="fu">is.na</span>(tst_mat)] <span class="ot">=</span> <span class="cn">NA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize IBCF recommender model</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>IBCF_recommender <span class="ot">=</span> <span class="fu">Recommender</span>(trn_dat, <span class="at">method =</span> <span class="st">"IBCF"</span>,</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">parameter =</span> <span class="fu">list</span>(<span class="at">normalize =</span> <span class="st">"center"</span>, </span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">method =</span> <span class="st">"Cosine"</span>, <span class="at">k =</span> <span class="dv">30</span>))</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="co"># save model</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(IBCF_recommender, <span class="at">file =</span> <span class="st">"../data/ibcf.rds"</span>)</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a><span class="co"># predict items for new user</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>IBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(IBCF_recommender, tst_dat, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>IBCF_pred <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">as</span>(IBCF_pred, <span class="st">"matrix"</span>))</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a><span class="co"># should be 0</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of predictions that change between NA and real-valued number space:"</span>, </span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">is.na</span>(IBCF_pred) <span class="sc">!=</span> <span class="fu">is.na</span>(ibcf_pred)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of predictions that change between NA and real-valued number space: 1</code></pre>
+</div>
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># should be below 0.1</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Mean absolute error over 1e-6:"</span>, </span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">abs</span>(IBCF_pred <span class="sc">-</span> ibcf_pred) <span class="sc">&gt;</span> <span class="fl">1e-6</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Mean absolute error over 1e-6: 0.08243052</code></pre>
+</div>
+</div>
+<div class="cell">
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulating shiny user input and recommendation</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>new_shiny_user <span class="ot">=</span> ratings <span class="sc">%&gt;%</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(user_id <span class="sc">==</span> <span class="fu">substr</span>(tmp_user, <span class="dv">2</span>, <span class="fu">nchar</span>(tmp_user))) <span class="sc">%&gt;%</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(user_id, movie_id, rating))</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>IBCF_REC_MOD <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="st">"../data/ibcf.rds"</span>)</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>shiny_rating_matrix <span class="ot">=</span> <span class="fu">preprocessRatings</span>(new_shiny_user, IBCF_REC_MOD)</span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>shiny_IBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(IBCF_REC_MOD, shiny_rating_matrix, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a>shiny_IBCF_pred <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">as</span>(shiny_IBCF_pred, <span class="st">"matrix"</span>))</span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a><span class="co"># should be 0</span></span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of predictions that change between NA and real-valued number space:"</span>, </span>
+<span id="cb68-13"><a href="#cb68-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">is.na</span>(shiny_IBCF_pred) <span class="sc">!=</span> <span class="fu">is.na</span>(ibcf_pred)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of predictions that change between NA and real-valued number space: 1</code></pre>
+</div>
+<details open="">
+<summary>Reveal the code</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># should be below 0.1</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Mean absolute error over 1e-6:"</span>, </span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">abs</span>(shiny_IBCF_pred <span class="sc">-</span> ibcf_pred) <span class="sc">&gt;</span> <span class="fl">1e-6</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Mean absolute error over 1e-6: 0.08243052</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

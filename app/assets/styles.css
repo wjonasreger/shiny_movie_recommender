@@ -1,0 +1,25 @@
+.rateitems {
+    padding-left: 5px; 
+    height: 500px; 
+    overflow-y: scroll;
+ }
+
+ .generalitems {
+    padding-left: 5px; 
+    height: 450px; 
+    overflow-y: visible;
+ }
+ 
+ .border-box {
+    padding: 5px;
+ }
+ 
+ .btn-warning {
+    color: white; 
+    font-size: 120%;
+ }
+
+ img {
+    max-width: 100%;
+    max-height: 100%;
+ }
