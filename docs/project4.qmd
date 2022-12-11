@@ -23,7 +23,7 @@ format:
 
 ## Load Data
 
-The [dataset](https://liangfgithub.github.io/MovieData/) contains about 1 million anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000. General information about the data is introduced in this document, but for more in-depth documentation on the data refer to `raw/README.txt` or [here](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/raw) on GitHub.
+The [dataset](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/raw) contains about 1 million anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000. General information about the data is introduced in this document, but for more in-depth documentation on the data refer to `raw/README.txt` or [here](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/raw) on GitHub.
 
 ```{r load packages, message=FALSE, warning=FALSE}
 library(stringr)
@@ -463,7 +463,7 @@ system1_movies %>%
             options = list(dom = 't', scrollX = TRUE, autoWidth = FALSE))
 ```
 
-### Method II: Penalties for Movies
+### Method II: Penalties for Movie Release Year
 
 The second method in constructing a rank vector is the same as the first method, but extended with an additional objective to prefer recommending movies that are recent. There is a potential issue discovered in the previous exploratory analysis section with regards to movies. Newer movies generally have a harder time rising to higher ranks since they are treated equally as older movies. While this is not inherently bad, it can make it more challenging for more newer movies to be discovered quickly by users. A solution to this is to add a penalty term to movies that are older. Hopefully, this helps balance the goals of recommending things that are popular but also new.
 
