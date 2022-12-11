@@ -15,7 +15,6 @@ source('assets/helpers.R')
 # load preprocessed movies data
 # data_url = "https://github.com/wjonasreger/movie_recommender_shiny/raw/"
 # url_dl = "?raw=true"
-setwd("G:/STAT 542/project4/app")
 data_url = "../data/"
 url_dl = ""
 movies = readLines(paste0(data_url, 'movies.dat', url_dl))

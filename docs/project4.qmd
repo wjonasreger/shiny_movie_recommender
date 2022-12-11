@@ -128,7 +128,7 @@ delCat = function(x, sep) {
 movies$movie_id = as.integer(movies$movie_id)
 movies$title = iconv(movies$title, "latin1", "UTF-8")
 
-small_image_url = "https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/"
+small_image_url = "https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/"
 
 # p = getwd()
 # unzip(paste0(p, "/../raw/MovieImages.zip"),

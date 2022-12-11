@@ -309,11 +309,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>movie_id <span class="ot">=</span> <span class="fu">as.integer</span>(movies<span class="sc">$</span>movie_id)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>title <span class="ot">=</span> <span class="fu">iconv</span>(movies<span class="sc">$</span>title, <span class="st">"latin1"</span>, <span class="st">"UTF-8"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>small_image_url <span class="ot">=</span> <span class="st">"https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>small_image_url <span class="ot">=</span> <span class="st">"https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/"</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>p <span class="ot">=</span> <span class="fu">getwd</span>()</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span>(<span class="fu">paste0</span>(p, <span class="st">"/../raw/MovieImages.zip"</span>),</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">exdir =</span> <span class="fu">paste0</span>(p, <span class="st">"/../data"</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># p = getwd()</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># unzip(paste0(p, "/../raw/MovieImages.zip"),</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#           exdir = paste0(p, "/../data"))</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>movies<span class="sc">$</span>image_url <span class="ot">=</span> <span class="fu">sapply</span>(movies<span class="sc">$</span>movie_id, </span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                          <span class="cf">function</span>(x) <span class="fu">paste0</span>(small_image_url, x, <span class="st">'.jpg?raw=true'</span>))</span>
@@ -336,13 +336,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 4        4           Waiting to Exhale (1995)                 Comedy|Drama
 5        5 Father of the Bride Part II (1995)                       Comedy
 6        6                        Heat (1995)        Action|Crime|Thriller
-                                                                               image_url
-1 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/1.jpg?raw=true
-2 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/2.jpg?raw=true
-3 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/3.jpg?raw=true
-4 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/4.jpg?raw=true
-5 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/5.jpg?raw=true
-6 https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/6.jpg?raw=true
+                                                                                         image_url
+1 https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/1.jpg?raw=true
+2 https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/2.jpg?raw=true
+3 https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/3.jpg?raw=true
+4 https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/4.jpg?raw=true
+5 https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/5.jpg?raw=true
+6 https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/MovieImages/6.jpg?raw=true
   year Animation Children's Comedy Adventure Fantasy Romance Drama Action Crime
 1 1995         1          1      1         0       0       0     0      0     0
 2 1995         0          1      0         1       1       0     0      0     0
