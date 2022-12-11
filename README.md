@@ -27,7 +27,9 @@ Here are some important links to view for learning more about this project:
 
 Recommender System I in the app uses the following formula to measure the rank of a movie in order to select the top movies in a given genre.
 
-$$\mathbf{rank}_k = S_{[0, 100]}(\frac{\sum_{i=1}^m w_i \times r_i}{\sum_{i=1}^m w_i} - S_{[0, 1]}(\log(\texttt{movie age})))$$
+$$\mathbf{rank}_k = S_{[0, 100]}\big(\frac{\sum_{i=1}^m w_i \times r_i}{\sum_{i=1}^m w_i} - S_{[0, 1]}(\log(\texttt{movie age})) \big)$$
+
+Where $S(\cdot)$ is a mapping function that transforms the input to some space $[a, b]$.
 
 ### Recommender System II: UBCF and IBCF
 
@@ -44,22 +46,22 @@ The app is fairly simple to use, but here are some guidelines on how to use it a
 1. Recommendations by Genre
 
 * The app will land on the System I page initially, which is called **Popular Movies by Genre**.
-![sys1-land]()
+![sys1-land](https://raw.githubusercontent.com/wjonasreger/shiny_movie_recommender/main/assets-README/sys1-default.png)
 
 * The user selects a genre and the region to the right (with movie info) will update to show the top 15 movies in the genre based on movie ranks computed by the Recommender System I. Here is an example of selecting **Animation** and viewing the top movies in that genre. By default, this will show the top 15 movies across all genres when the app is opened (i.e., **All** genres).
-![sys1-select]()
+![sys1-select](https://raw.githubusercontent.com/wjonasreger/shiny_movie_recommender/main/assets-README/sys1-animation.png)
 
 2. Recommendations by New User Ratings
 
 * The user will click on the **Recommended Movies by Ratings** tab to switch into the Recommender System II interface. This will show a scrollable window of over 100 movies with 5-star rating inputs.
-![sys2-init]()
+![sys2-init](https://raw.githubusercontent.com/wjonasreger/shiny_movie_recommender/main/assets-README/sys2-default.png)
 
 * The user will rate as many movies as they have seen. If less than 3 movies are rated, then the system will default to recommending the top 12 movies of all genres (i.e., this will be the same as System I default recommendations).
     * Sometimes computation errors occur with too few rating inputs. Also if a user is unable to rate more than 2 movies, then it is reasonable from an app perspective to implicitly use System I recommendations to help the user get exposed to more movies first. System II recommendations may perform poorly with very few ratings from the user.
-![user-ratings]()
+![user-ratings](https://raw.githubusercontent.com/wjonasreger/shiny_movie_recommender/main/assets-README/sys2-ratings.png)
 
 * Once the user finishes with rating movies, they can select the **View your recommendations** button to recieve new movie recommendations. System II was originally only going to utilize UBCF recommendations, but it features both the UBCF and IBCF models to further enhance the recommendation experience for the user. Providing recommendations from both models will allow the user to explore movies they might like based on different criteria.
     * If the user wants to see more movies that are popular amongst their peers (i.e., people who are similar to them based on their movie ratings), then they are more likely to discover new movies outside their current interests.
-    ![ubcf]()
+    ![ubcf](https://raw.githubusercontent.com/wjonasreger/shiny_movie_recommender/main/assets-README/sys2-ubcf-recs.png)
     * If the user wants to see more movies that are similar to the ones they rated highly on, then that allows more recommendations into a genre or some other latent trend of similar movies.
-    ![ibcf]()
+    ![ibcf](https://raw.githubusercontent.com/wjonasreger/shiny_movie_recommender/main/assets-README/sys2-ibcf-recs.png)
