@@ -757,7 +757,7 @@ UBCF_recommender = Recommender(trn_dat, method = "UBCF",
                                parameter = list(normalize = "center", 
                                                 method = "Cosine", nn = 20))
 # save model
-saveRDS(UBCF_recommender, file = "../data/ubcf.rds")
+saveRDS(UBCF_recommender, file = "../movie_recommender/models/ubcf.rds")
 
 # predict items for new user
 UBCF_pred = predict(UBCF_recommender, tst_dat, type="ratings")
@@ -824,7 +824,7 @@ new_shiny_user = ratings %>%
   filter(user_id == substr(tmp_user, 2, nchar(tmp_user))) %>%
   select(c(user_id, movie_id, rating))
 
-UBCF_REC_MOD = readRDS("../data/ubcf.rds")
+UBCF_REC_MOD = readRDS("../movie_recommender/models/ubcf.rds")
 shiny_rating_matrix = preprocessRatings(new_shiny_user, UBCF_REC_MOD)
 
 shiny_UBCF_pred = predict(UBCF_REC_MOD, shiny_rating_matrix, type="ratings")
@@ -868,7 +868,7 @@ IBCF_recommender = Recommender(trn_dat, method = "IBCF",
                                parameter = list(normalize = "center", 
                                                 method = "Cosine", k = 30))
 # save model
-saveRDS(IBCF_recommender, file = "../data/ibcf.rds")
+saveRDS(IBCF_recommender, file = "../movie_recommender/models/ibcf.rds")
 
 # predict items for new user
 IBCF_pred = predict(IBCF_recommender, tst_dat, type="ratings")
@@ -887,7 +887,7 @@ new_shiny_user = ratings %>%
   filter(user_id == substr(tmp_user, 2, nchar(tmp_user))) %>%
   select(c(user_id, movie_id, rating))
 
-IBCF_REC_MOD = readRDS("../data/ibcf.rds")
+IBCF_REC_MOD = readRDS("../movie_recommender/models/ibcf.rds")
 shiny_rating_matrix = preprocessRatings(new_shiny_user, IBCF_REC_MOD)
 
 shiny_IBCF_pred = predict(IBCF_REC_MOD, shiny_rating_matrix, type="ratings")

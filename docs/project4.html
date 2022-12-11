@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="W. Jonas Reger (wreger2), Hope Hunter (hhunter3)">
-<meta name="dcterms.date" content="2022-12-10">
+<meta name="dcterms.date" content="2022-12-11">
 
 <title>Project 4: Movie Recommender</title>
 <style>
@@ -148,7 +148,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 10, 2022</p>
+      <p class="date">December 11, 2022</p>
     </div>
   </div>
   
@@ -1151,7 +1151,7 @@ SNW_i = \frac{\lVert \mathbf{W}_{i\cdot} \rVert}{max(\lVert \mathbf{W}_{j\cdot} 
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">parameter =</span> <span class="fu">list</span>(<span class="at">normalize =</span> <span class="st">"center"</span>, </span>
 <span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">method =</span> <span class="st">"Cosine"</span>, <span class="at">nn =</span> <span class="dv">20</span>))</span>
 <span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="co"># save model</span></span>
-<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(UBCF_recommender, <span class="at">file =</span> <span class="st">"../data/ubcf.rds"</span>)</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(UBCF_recommender, <span class="at">file =</span> <span class="st">"../movie_recommender/models/ubcf.rds"</span>)</span>
 <span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="co"># predict items for new user</span></span>
 <span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>UBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(UBCF_recommender, tst_dat, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
@@ -1229,7 +1229,7 @@ Maximum absolute error: 4.953572e-07</code></pre>
 <span id="cb57-49"><a href="#cb57-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(user_id <span class="sc">==</span> <span class="fu">substr</span>(tmp_user, <span class="dv">2</span>, <span class="fu">nchar</span>(tmp_user))) <span class="sc">%&gt;%</span></span>
 <span id="cb57-50"><a href="#cb57-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(user_id, movie_id, rating))</span>
 <span id="cb57-51"><a href="#cb57-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-52"><a href="#cb57-52" aria-hidden="true" tabindex="-1"></a>UBCF_REC_MOD <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="st">"../data/ubcf.rds"</span>)</span>
+<span id="cb57-52"><a href="#cb57-52" aria-hidden="true" tabindex="-1"></a>UBCF_REC_MOD <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="st">"../movie_recommender/models/ubcf.rds"</span>)</span>
 <span id="cb57-53"><a href="#cb57-53" aria-hidden="true" tabindex="-1"></a>shiny_rating_matrix <span class="ot">=</span> <span class="fu">preprocessRatings</span>(new_shiny_user, UBCF_REC_MOD)</span>
 <span id="cb57-54"><a href="#cb57-54" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb57-55"><a href="#cb57-55" aria-hidden="true" tabindex="-1"></a>shiny_UBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(UBCF_REC_MOD, shiny_rating_matrix, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
@@ -1292,7 +1292,7 @@ Maximum absolute error: 4.953572e-07</code></pre>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">parameter =</span> <span class="fu">list</span>(<span class="at">normalize =</span> <span class="st">"center"</span>, </span>
 <span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">method =</span> <span class="st">"Cosine"</span>, <span class="at">k =</span> <span class="dv">30</span>))</span>
 <span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="co"># save model</span></span>
-<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(IBCF_recommender, <span class="at">file =</span> <span class="st">"../data/ibcf.rds"</span>)</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(IBCF_recommender, <span class="at">file =</span> <span class="st">"../movie_recommender/models/ibcf.rds"</span>)</span>
 <span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a><span class="co"># predict items for new user</span></span>
 <span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>IBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(IBCF_recommender, tst_dat, <span class="at">type=</span><span class="st">"ratings"</span>)</span>
@@ -1323,7 +1323,7 @@ Mean absolute error over 1e-6: 0.08243052</code></pre>
 <span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(user_id <span class="sc">==</span> <span class="fu">substr</span>(tmp_user, <span class="dv">2</span>, <span class="fu">nchar</span>(tmp_user))) <span class="sc">%&gt;%</span></span>
 <span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(user_id, movie_id, rating))</span>
 <span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>IBCF_REC_MOD <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="st">"../data/ibcf.rds"</span>)</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>IBCF_REC_MOD <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="st">"../movie_recommender/models/ibcf.rds"</span>)</span>
 <span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>shiny_rating_matrix <span class="ot">=</span> <span class="fu">preprocessRatings</span>(new_shiny_user, IBCF_REC_MOD)</span>
 <span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>shiny_IBCF_pred <span class="ot">=</span> <span class="fu">predict</span>(IBCF_REC_MOD, shiny_rating_matrix, <span class="at">type=</span><span class="st">"ratings"</span>)</span>

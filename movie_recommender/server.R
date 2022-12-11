@@ -1,61 +1,5 @@
 # server.R
 
-# helper function to preprocess long-form data for new user ratings into rRM obj
-preprocessRatings = function(user_input, rec_mod) {
-  user_input$movie_id = paste0('m', user_input$movie_id)
-  
-  # dataframe > sparseMatrix > realRatingMatrix
-  # note: it is necessary to get factor levels across all items
-  # already existing in recommender model before filtering out
-  # rows with NA ratings.
-  method = rec_mod@method
-  if (method == "UBCF") {
-    RRM_items = rec_mod@model$data@data@Dimnames[[2]]
-  } else if (method == "IBCF") {
-    RRM_items = rec_mod@model$sim@Dimnames[[2]]
-  } else {
-    break
-  }
-  
-  tmp_data = data.frame( movie_id = RRM_items ) %>%
-    left_join(user_input, "movie_id")
-  tmp_data$user_id = rep("u0", nrow(tmp_data))
-  
-  tmp_data = data.frame(
-    user_id = tmp_data$user_id,
-    movie_id = tmp_data$movie_id,
-    rating = as.integer(tmp_data$rating),
-    stringsAsFactors = TRUE
-  ) %>%
-    drop_na()
-  
-  # tmp_data = head(tmp_data, 10)
-  
-  rating_matrix = sparseMatrix(
-    dims = c(1, length(RRM_items)),
-    as.integer(tmp_data$user_id),
-    as.integer(tmp_data$movie_id),
-    x = tmp_data$rating
-  )
-  
-  rownames(rating_matrix) = levels(tmp_data$user_id)
-  colnames(rating_matrix) = levels(tmp_data$movie_id)
-  rating_matrix = new("realRatingMatrix", data = rating_matrix)
-  
-  return(rating_matrix)
-}
-
-# helper function to extract user ratings input from shiny input list
-get_user_ratings = function(value_list) {
-  dat = data.table(movie_id = sapply(strsplit(names(value_list), "_"), 
-                                    function(x) ifelse(length(x) > 1, x[[2]], NA)),
-                   rating = unlist(as.character(value_list)))
-  dat = dat[!is.null(rating) & !is.na(movie_id)]
-  dat[rating == " ", rating := 0]
-  dat[, ':=' (movie_id = as.numeric(movie_id), rating = as.numeric(rating))]
-  dat = dat[rating > 0]
-}
-
 # dimensions of data table
 num_rows = 3
 num_movies = 5
@@ -141,24 +85,38 @@ server = function(input, output, session) {
     })
   })
   
+  selected_model = reactive({
+    if (input$selectModel == "UBCF") {
+      # print("loading UBCF model...")
+      UBCF_REC_MOD
+    } else {
+      # print("loading IBCF model...")
+      IBCF_REC_MOD
+    }
+  })
+  
   # calculate recommendations when button is pushed for system II
   recommended_movies = eventReactive(input$btn, {
     withBusyIndicatorServer("btn", {
       # hide the ratings box
       useShinyjs()
-      runjs("document.querySelector('[data-widget=collapse]').click()")
+      # runjs("document.querySelector('[data-widget=collapse]').click()")
       
       # get user ratings 
       value_list = reactiveValuesToList(input)
-      user_ratings = get_user_ratings(value_list)
-      
-      rating_matrix = preprocessRatings(user_ratings, UBCF_REC_MOD)
-      pred_recommend = predict(UBCF_REC_MOD, rating_matrix, type="ratings")
-      # pred_recommend = predict(IBCF_REC_MOD, rating_matrix, type="ratings")
-      pred_recommend = as.numeric(as(pred_recommend, "matrix"))
-      pred_ids = order(pred_recommend, decreasing = TRUE, na.last = TRUE)
-      
-      movies[pred_ids[1:(num_rows * num_movies)], ]
+      user_ratings = getUserRatings(value_list)
+      # print(user_ratings)
+      if (nrow(user_ratings) < 3) {
+        movies[1:(num_rows * num_movies), ]
+      } else {
+        recommender_model = selected_model()
+        rating_matrix = preprocessRatings(user_ratings, recommender_model)
+        pred_recommend = predict(recommender_model, rating_matrix, type="ratings")
+        pred_recommend = as.numeric(as(pred_recommend, "matrix"))
+        pred_ids = order(pred_recommend, decreasing = TRUE, na.last = TRUE)
+        
+        movies[pred_ids[1:(num_rows * num_movies)], ]
+      }
     })
   })
   
@@ -168,6 +126,7 @@ server = function(input, output, session) {
     num_movies = 6
     
     recommendations = recommended_movies()
+    gc(verbose = FALSE)
     
     lapply(1:num_rows, function(i) {
       list(fluidRow(
