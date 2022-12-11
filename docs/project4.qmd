@@ -130,9 +130,9 @@ movies$title = iconv(movies$title, "latin1", "UTF-8")
 
 small_image_url = "https://github.com/wjonasreger/shiny_movie_recommender/data/MovieImages/"
 
-p = getwd()
-unzip(paste0(p, "/../raw/MovieImages.zip"),
-          exdir = paste0(p, "/../data"))
+# p = getwd()
+# unzip(paste0(p, "/../raw/MovieImages.zip"),
+#           exdir = paste0(p, "/../data"))
 
 movies$image_url = sapply(movies$movie_id, 
                           function(x) paste0(small_image_url, x, '.jpg?raw=true'))
