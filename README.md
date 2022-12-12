@@ -41,7 +41,7 @@ UBCF recommendations are essentially movies that are liked by other users that a
 
 ## How to use the Shiny App
 
-The app is fairly simple to use, but here are some guidelines on how to use it and other details.
+The app is fairly simple to use, but here are some guidelines on how to use it and other details. (Note: users can click on movie images to quickly see a google search for the movie).
 
 1. Recommendations by Genre
 
