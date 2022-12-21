@@ -15,7 +15,7 @@ Here are the methods that were explored:
 ## Documentation
 
 Here are some important links to view for learning more about this project:
-* Analysis Documentation [[source](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/docs)], [[html](https://wjonasreger.github.io/projects/shiny_movie_recommender/)]
+* Analysis Documentation [[source](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/docs), [html](https://wjonasreger.github.io/projects/shiny_movie_recommender/)]
 * Data [[raw](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/raw), [processed](https://github.com/wjonasreger/shiny_movie_recommender/blob/main/data/movies.dat)]
 * Shiny App [[source](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/movie_recommender), [app-link](https://h550e6-wjonasreger.shinyapps.io/movie_recommender/), [how-to-use](https://github.com/wjonasreger/shiny_movie_recommender#how-to-use-the-shiny-app), [models](https://github.com/wjonasreger/shiny_movie_recommender/tree/main/movie_recommender/models)]
 
